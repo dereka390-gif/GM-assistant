@@ -1,4 +1,4 @@
-const CACHE_NAME = "gm-assistant-v16";
+const CACHE_NAME = "gm-assistant-v17";
 
 const APP_SHELL = [
   "./",
@@ -8,15 +8,16 @@ const APP_SHELL = [
   "./week-ending-fix.js",
   "./communication-studio.js",
   "./communication-customizer.js",
-  "./mascot-safe.js",
-  "./mascot-click-fix.js",
-  "./communication-pro-editor.js"
+  "./communication-pro-editor.js",
+  "./communication-object-tools.js"
 ];
 
 function injectHistoryFix(html) {
   let out = html;
   out = out.replace(/<script[^>]*src=["']poster-builder\.js["'][^>]*><\/script>\s*/gi, '');
   out = out.replace(/<script[^>]*src=["']mascot-pack\.js["'][^>]*><\/script>\s*/gi, '');
+  out = out.replace(/<script[^>]*src=["']mascot-safe\.js["'][^>]*><\/script>\s*/gi, '');
+  out = out.replace(/<script[^>]*src=["']mascot-click-fix\.js["'][^>]*><\/script>\s*/gi, '');
   out = out.replace(/<script[^>]*src=["']communication-customizer-v2\.js["'][^>]*><\/script>\s*/gi, '');
   out = out.replace(/<script[^>]*src=["']communication-drag-layout\.js["'][^>]*><\/script>\s*/gi, '');
   out = out.replace(/<script[^>]*src=["']communication-pinch-scale\.js["'][^>]*><\/script>\s*/gi, '');
@@ -24,9 +25,8 @@ function injectHistoryFix(html) {
   if (!out.includes('week-ending-fix.js')) out = out.replace('</body>', '<script src="week-ending-fix.js"></script>\n</body>');
   if (!out.includes('communication-studio.js')) out = out.replace('</body>', '<script src="communication-studio.js"></script>\n</body>');
   if (!out.includes('communication-customizer.js')) out = out.replace('</body>', '<script src="communication-customizer.js"></script>\n</body>');
-  if (!out.includes('mascot-safe.js')) out = out.replace('</body>', '<script src="mascot-safe.js"></script>\n</body>');
-  if (!out.includes('mascot-click-fix.js')) out = out.replace('</body>', '<script src="mascot-click-fix.js"></script>\n</body>');
   if (!out.includes('communication-pro-editor.js')) out = out.replace('</body>', '<script src="communication-pro-editor.js"></script>\n</body>');
+  if (!out.includes('communication-object-tools.js')) out = out.replace('</body>', '<script src="communication-object-tools.js"></script>\n</body>');
   return out;
 }
 
