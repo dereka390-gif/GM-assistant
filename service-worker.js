@@ -1,4 +1,4 @@
-const CACHE_NAME = "gm-assistant-v19";
+const CACHE_NAME = "gm-assistant-v20";
 
 const APP_SHELL = [
   "./",
@@ -11,7 +11,8 @@ const APP_SHELL = [
   "./communication-pro-editor.js",
   "./communication-object-tools.js",
   "./communication-media-styles.js",
-  "./communication-text-edit.js"
+  "./communication-text-edit.js",
+  "./help-guide.js"
 ];
 
 function injectHistoryFix(html) {
@@ -31,6 +32,7 @@ function injectHistoryFix(html) {
   if (!out.includes('communication-object-tools.js')) out = out.replace('</body>', '<script src="communication-object-tools.js"></script>\n</body>');
   if (!out.includes('communication-media-styles.js')) out = out.replace('</body>', '<script src="communication-media-styles.js"></script>\n</body>');
   if (!out.includes('communication-text-edit.js')) out = out.replace('</body>', '<script src="communication-text-edit.js"></script>\n</body>');
+  if (!out.includes('help-guide.js')) out = out.replace('</body>', '<script src="help-guide.js"></script>\n</body>');
   return out;
 }
 function patchedHtmlResponse(html, sourceResponse) { const headers=new Headers(sourceResponse?sourceResponse.headers:{});headers.set('content-type','text/html; charset=utf-8');return new Response(injectHistoryFix(html),{status:sourceResponse?sourceResponse.status:200,statusText:sourceResponse?sourceResponse.statusText:'OK',headers}); }
