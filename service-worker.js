@@ -1,4 +1,4 @@
-const CACHE_NAME = "gm-assistant-v5";
+const CACHE_NAME = "gm-assistant-v6";
 
 const APP_SHELL = [
   "./",
