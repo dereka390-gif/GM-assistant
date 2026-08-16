@@ -1,4 +1,4 @@
-const CACHE_NAME = "gm-assistant-v8";
+const CACHE_NAME = "gm-assistant-v9";
 
 const APP_SHELL = [
   "./",
@@ -6,7 +6,8 @@ const APP_SHELL = [
   "./icon.svg",
   "./history-fix.js",
   "./week-ending-fix.js",
-  "./communication-studio.js"
+  "./communication-studio.js",
+  "./poster-builder.js"
 ];
 
 function injectHistoryFix(html) {
@@ -14,6 +15,7 @@ function injectHistoryFix(html) {
   if (!out.includes('history-fix.js')) out = out.replace('</body>', '<script src="history-fix.js"></script>\n</body>');
   if (!out.includes('week-ending-fix.js')) out = out.replace('</body>', '<script src="week-ending-fix.js"></script>\n</body>');
   if (!out.includes('communication-studio.js')) out = out.replace('</body>', '<script src="communication-studio.js"></script>\n</body>');
+  if (!out.includes('poster-builder.js')) out = out.replace('</body>', '<script src="poster-builder.js"></script>\n</body>');
   return out;
 }
 
