@@ -1,19 +1,38 @@
-const CACHE_NAME = "gm-assistant-v3";
+const CACHE_NAME = "gm-assistant-v4";
 
 const APP_SHELL = [
   "./",
-  "./index.html",
   "./manifest.webmanifest",
-  "./icon.svg"
+  "./icon.svg",
+  "./history-fix.js"
 ];
+
+function injectHistoryFix(html) {
+  if (html.includes('history-fix.js')) return html;
+  return html.replace('</body>', '<script src="history-fix.js"></script>\n</body>');
+}
+
+function patchedHtmlResponse(html, sourceResponse) {
+  const headers = new Headers(sourceResponse ? sourceResponse.headers : {});
+  headers.set('content-type', 'text/html; charset=utf-8');
+  return new Response(injectHistoryFix(html), {
+    status: sourceResponse ? sourceResponse.status : 200,
+    statusText: sourceResponse ? sourceResponse.statusText : 'OK',
+    headers
+  });
+}
 
 self.addEventListener("install", event => {
   self.skipWaiting();
 
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(APP_SHELL);
-    })
+    Promise.all([
+      caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)),
+      fetch('./index.html', { cache: 'no-store' })
+        .then(response => response.text().then(html => ({ response, html })))
+        .then(({ response, html }) => caches.open(CACHE_NAME).then(cache => cache.put('./index.html', patchedHtmlResponse(html, response))))
+        .catch(() => undefined)
+    ])
   );
 });
 
@@ -35,18 +54,20 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   const request = event.request;
 
-  // Always try to get the newest page first.
+  // Always try to get the newest page first, then inject the weekly-history fix.
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request, { cache: "no-store" })
-        .then(response => {
-          const copy = response.clone();
+        .then(response => response.text().then(html => ({ response, html })))
+        .then(({ response, html }) => {
+          const patched = patchedHtmlResponse(html, response);
+          const cacheCopy = patched.clone();
 
           caches.open(CACHE_NAME).then(cache => {
-            cache.put("./index.html", copy);
+            cache.put("./index.html", cacheCopy);
           });
 
-          return response;
+          return patched;
         })
         .catch(() => caches.match("./index.html"))
     );
@@ -57,7 +78,7 @@ self.addEventListener("fetch", event => {
   // Network first for the rest of the app files.
   if (new URL(request.url).origin === self.location.origin) {
     event.respondWith(
-      fetch(request)
+      fetch(request, { cache: "no-store" })
         .then(response => {
           const copy = response.clone();
 
