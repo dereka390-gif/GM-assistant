@@ -1,4 +1,4 @@
-const CACHE_NAME = "gm-assistant-v15";
+const CACHE_NAME = "gm-assistant-v16";
 
 const APP_SHELL = [
   "./",
@@ -10,8 +10,7 @@ const APP_SHELL = [
   "./communication-customizer.js",
   "./mascot-safe.js",
   "./mascot-click-fix.js",
-  "./communication-drag-layout.js",
-  "./communication-pinch-scale.js"
+  "./communication-pro-editor.js"
 ];
 
 function injectHistoryFix(html) {
@@ -19,14 +18,15 @@ function injectHistoryFix(html) {
   out = out.replace(/<script[^>]*src=["']poster-builder\.js["'][^>]*><\/script>\s*/gi, '');
   out = out.replace(/<script[^>]*src=["']mascot-pack\.js["'][^>]*><\/script>\s*/gi, '');
   out = out.replace(/<script[^>]*src=["']communication-customizer-v2\.js["'][^>]*><\/script>\s*/gi, '');
+  out = out.replace(/<script[^>]*src=["']communication-drag-layout\.js["'][^>]*><\/script>\s*/gi, '');
+  out = out.replace(/<script[^>]*src=["']communication-pinch-scale\.js["'][^>]*><\/script>\s*/gi, '');
   if (!out.includes('history-fix.js')) out = out.replace('</body>', '<script src="history-fix.js"></script>\n</body>');
   if (!out.includes('week-ending-fix.js')) out = out.replace('</body>', '<script src="week-ending-fix.js"></script>\n</body>');
   if (!out.includes('communication-studio.js')) out = out.replace('</body>', '<script src="communication-studio.js"></script>\n</body>');
   if (!out.includes('communication-customizer.js')) out = out.replace('</body>', '<script src="communication-customizer.js"></script>\n</body>');
   if (!out.includes('mascot-safe.js')) out = out.replace('</body>', '<script src="mascot-safe.js"></script>\n</body>');
   if (!out.includes('mascot-click-fix.js')) out = out.replace('</body>', '<script src="mascot-click-fix.js"></script>\n</body>');
-  if (!out.includes('communication-drag-layout.js')) out = out.replace('</body>', '<script src="communication-drag-layout.js"></script>\n</body>');
-  if (!out.includes('communication-pinch-scale.js')) out = out.replace('</body>', '<script src="communication-pinch-scale.js"></script>\n</body>');
+  if (!out.includes('communication-pro-editor.js')) out = out.replace('</body>', '<script src="communication-pro-editor.js"></script>\n</body>');
   return out;
 }
 
