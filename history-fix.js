@@ -1,7 +1,22 @@
-// GM Assistant hotfix: saved weekly history + editing UI + balanced health coaching
+// GM Assistant enhancements: weekly history/editing + balanced health coaching
 (() => {
   const getHistoryEl = () => document.getElementById('history');
   const getForm = () => document.getElementById('weekForm');
+
+  function removeSurveyCountUI() {
+    const form = getForm();
+    const surveyInput = form?.elements?.surveyCount;
+    surveyInput?.closest('label')?.remove();
+
+    const metricSelect = document.getElementById('metric');
+    const surveyOption = metricSelect?.querySelector('option[value="surveyCount"]');
+    if (surveyOption) {
+      if (metricSelect.value === 'surveyCount') metricSelect.value = 'osat';
+      surveyOption.remove();
+    }
+
+    if (typeof META === 'object' && META.surveyCount) delete META.surveyCount;
+  }
 
   function setEditState(week) {
     const form = getForm();
@@ -25,7 +40,6 @@
     }
   }
 
-  // Avoid collision with the browser's built-in window.history object.
   renderHistory = function () {
     const historyEl = getHistoryEl();
     if (!historyEl) return;
@@ -52,7 +66,7 @@
     if (!form || !week) return;
     show('entry');
     Object.entries(week).forEach(([key, value]) => {
-      if (form.elements[key]) form.elements[key].value = value ?? '';
+      if (key !== 'surveyCount' && form.elements[key]) form.elements[key].value = value ?? '';
     });
     form.dataset.id = id;
     setEditState(week);
@@ -73,8 +87,16 @@
     if (id === 'entry') renderHistory();
   };
 
+  // Remove Survey Count from all active app surfaces. Legacy stored values remain untouched but unused.
+  removeSurveyCountUI();
+  if (typeof priorities === 'function') {
+    const basePriorities = priorities;
+    priorities = function (w, p) {
+      return basePriorities(w, p).filter(item => item?.title !== 'Recover survey volume');
+    };
+  }
+
   // ----- Balanced Restaurant Health model -----
-  // Survey percentages are converted to operating-performance bands rather than treated like school grades.
   function guestMetricScore(value) {
     if (value == null || !Number.isFinite(Number(value))) return null;
     const v = Number(value);
@@ -154,7 +176,7 @@
       const low = allGuest[0];
       if (low) {
         const actions = {
-          osat:'Increase survey consistency and focus coaching on the lowest guest category; better execution plus more survey responses can move OSAT.',
+          osat:'Focus coaching on the lowest guest-experience category and protect consistent execution over the rolling 90-day period.',
           accuracy:'Use order repeat-back, verify sauces/modifiers, and add a final bag check before handoff.',
           cleanliness:'Assign timed dining-room/restroom checks and make one manager responsible for verification each daypart.',
           speed:'Review deployment, product readiness and bottlenecks during the slowest daypart; use pull-ahead when appropriate.',
