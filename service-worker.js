@@ -1,4 +1,4 @@
-const CACHE_NAME = "gm-assistant-v17";
+const CACHE_NAME = "gm-assistant-v18";
 
 const APP_SHELL = [
   "./",
@@ -9,7 +9,9 @@ const APP_SHELL = [
   "./communication-studio.js",
   "./communication-customizer.js",
   "./communication-pro-editor.js",
-  "./communication-object-tools.js"
+  "./communication-object-tools.js",
+  "./communication-media-styles.js",
+  "./communication-text-edit.js"
 ];
 
 function injectHistoryFix(html) {
@@ -27,6 +29,8 @@ function injectHistoryFix(html) {
   if (!out.includes('communication-customizer.js')) out = out.replace('</body>', '<script src="communication-customizer.js"></script>\n</body>');
   if (!out.includes('communication-pro-editor.js')) out = out.replace('</body>', '<script src="communication-pro-editor.js"></script>\n</body>');
   if (!out.includes('communication-object-tools.js')) out = out.replace('</body>', '<script src="communication-object-tools.js"></script>\n</body>');
+  if (!out.includes('communication-media-styles.js')) out = out.replace('</body>', '<script src="communication-media-styles.js"></script>\n</body>');
+  if (!out.includes('communication-text-edit.js')) out = out.replace('</body>', '<script src="communication-text-edit.js"></script>\n</body>');
   return out;
 }
 
