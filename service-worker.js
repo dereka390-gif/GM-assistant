@@ -1,4 +1,4 @@
-const CACHE_NAME = "gm-assistant-v9";
+const CACHE_NAME = "gm-assistant-v10";
 
 const APP_SHELL = [
   "./",
@@ -7,15 +7,17 @@ const APP_SHELL = [
   "./history-fix.js",
   "./week-ending-fix.js",
   "./communication-studio.js",
-  "./poster-builder.js"
+  "./communication-customizer.js"
 ];
 
 function injectHistoryFix(html) {
   let out = html;
+  // Remove the separate blank-canvas builder; customization now lives on the existing template.
+  out = out.replace(/<script[^>]*src=["']poster-builder\.js["'][^>]*><\/script>\s*/gi, '');
   if (!out.includes('history-fix.js')) out = out.replace('</body>', '<script src="history-fix.js"></script>\n</body>');
   if (!out.includes('week-ending-fix.js')) out = out.replace('</body>', '<script src="week-ending-fix.js"></script>\n</body>');
   if (!out.includes('communication-studio.js')) out = out.replace('</body>', '<script src="communication-studio.js"></script>\n</body>');
-  if (!out.includes('poster-builder.js')) out = out.replace('</body>', '<script src="poster-builder.js"></script>\n</body>');
+  if (!out.includes('communication-customizer.js')) out = out.replace('</body>', '<script src="communication-customizer.js"></script>\n</body>');
   return out;
 }
 
