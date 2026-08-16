@@ -5,7 +5,41 @@
 <meta name="theme-color" content="#9b1c1f"><meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest"><title>GM Assistant</title>
 <style>
-:root{--red:#9b1c1f;--dark:#6c1114;--cream:#fbf7f1;--ink:#251f20;--muted:#6f6668;--line:#e5d9d4;--good:#216e3a;--bad:#a1272d}*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:var(--cream);color:var(--ink)}header{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:#fbf7f1ee;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}h1,h2,h3,p{margin-top:0}h1{margin:0}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--red);font-weight:800;margin-bottom:4px}main{width:min(1100px,calc(100% - 20px));margin:auto;padding:12px 0 50px}.tabs{display:flex;gap:8px;overflow:auto;padding:8px 0 14px}.tabs button,.secondary,.primary{border-radius:12px;padding:10px 14px;font-weight:750}.tabs button,.secondary{border:1px solid var(--line);background:#fff}.tabs button.active,.primary{background:var(--red);color:#fff;border:1px solid var(--red)}.view{display:none}.view.active{display:block}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 10px 26px #3d1c1e12}.hero{display:flex;justify-content:space-between;gap:15px;align-items:center;background:linear-gradient(135deg,#fff,#f4e5e1)}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.metric{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px}.value{font-size:30px;font-weight:850}.status{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:800}.good{color:var(--good);background:#e8f4eb}.bad{color:var(--bad);background:#fbe7e8}.muted{color:var(--muted)}form .formgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}label{display:grid;gap:5px;font-size:14px;font-weight:700}input,textarea,select{width:100%;padding:11px;border:1px solid var(--line);border-radius:11px;font:inherit}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.history{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}canvas{width:100%;height:auto}.board{border:2px solid var(--red);border-radius:15px;padding:16px}.boardgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.panel{border:1px solid var(--line);border-radius:13px;padding:12px}.search{display:grid;grid-template-columns:1fr auto;gap:8px}.result{border-top:1px solid var(--line);padding:14px 0}@media(max-width:800px){.grid{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr 1fr!important}.two{grid-template-columns:1fr}}@media(max-width:520px){.grid,.formgrid,.boardgrid{grid-template-columns:1fr!important}.hero{align-items:stretch;flex-direction:column}.search{grid-template-columns:1fr}}@media print{body *{visibility:hidden}#board,#board *{visibility:visible}#board{position:absolute;inset:0;border:0}}
+:root{--red:#9b1c1f;--dark:#6c1114;--cream:#fbf7f1;--ink:#251f20;--muted:#6f6668;--line:#e5d9d4;--good:#216e3a;--bad:#a1272d;--warn:#9a650b;--soft:#f7f1eb}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:var(--cream);color:var(--ink)}
+header{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:#fbf7f1ee;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+h1,h2,h3,p{margin-top:0}h1{margin:0}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--red);font-weight:800;margin-bottom:4px}
+main{width:min(1100px,calc(100% - 20px));margin:auto;padding:12px 0 50px}.tabs{display:flex;gap:8px;overflow:auto;padding:8px 0 14px}
+.tabs button,.secondary,.primary{border-radius:12px;padding:10px 14px;font-weight:750}.tabs button,.secondary{border:1px solid var(--line);background:#fff}
+.tabs button.active,.primary{background:var(--red);color:#fff;border:1px solid var(--red)}.view{display:none}.view.active{display:block}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 10px 26px #3d1c1e12}
+.hero{display:flex;justify-content:space-between;gap:15px;align-items:center;background:linear-gradient(135deg,#fff,#f4e5e1)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.metric{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px}.value{font-size:30px;font-weight:850}
+.status{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:800}.good{color:var(--good);background:#e8f4eb}.bad{color:var(--bad);background:#fbe7e8}.warn{color:var(--warn);background:#fff5dc}.muted{color:var(--muted)}
+form .formgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}label{display:grid;gap:5px;font-size:14px;font-weight:700}
+input,textarea,select{width:100%;padding:11px;border:1px solid var(--line);border-radius:11px;font:inherit}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.history{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}canvas{width:100%;height:auto}
+.board{border:2px solid var(--red);border-radius:15px;padding:16px}.boardgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.panel{border:1px solid var(--line);border-radius:13px;padding:12px}
+.search{display:grid;grid-template-columns:1fr auto;gap:8px}.result{border-top:1px solid var(--line);padding:14px 0}
+
+/* Trends V3 */
+.trend-controls{display:grid;grid-template-columns:1.3fr 1fr .8fr;gap:12px;margin:14px 0}
+.trend-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.trend-stat{border:1px solid var(--line);border-radius:15px;padding:13px;background:linear-gradient(180deg,#fff,#fcfaf7)}
+.trend-stat .klabel{font-size:11px;text-transform:uppercase;letter-spacing:.07em;font-weight:800;color:var(--muted)}
+.trend-stat .kvalue{font-size:25px;font-weight:850;margin:5px 0 2px}.trend-stat .ksub{font-size:12px;color:var(--muted)}
+.trend-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(250px,.75fr);gap:14px;align-items:start}
+.trend-card{border:1px solid var(--line);border-radius:15px;padding:14px;background:#fff}
+.trend-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px}.trend-table th,.trend-table td{padding:9px 7px;border-top:1px solid var(--line);text-align:left}
+.trend-table th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.trend-insight{padding:12px;border-radius:12px;background:var(--soft);border:1px solid var(--line);margin-bottom:9px;line-height:1.4}
+.trend-insight b{display:block;margin-bottom:3px}.trend-header{display:flex;justify-content:space-between;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.trend-badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#f4e8e5;color:var(--red);font-size:12px;font-weight:800}
+
+@media(max-width:800px){.grid{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr 1fr!important}.two{grid-template-columns:1fr}.trend-layout{grid-template-columns:1fr}.trend-kpis{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.grid,.formgrid,.boardgrid,.trend-controls,.trend-kpis{grid-template-columns:1fr!important}.hero{align-items:stretch;flex-direction:column}.search{grid-template-columns:1fr}}
+@media print{body *{visibility:hidden}#board,#board *{visibility:visible}#board{position:absolute;inset:0;border:0}}
 </style>
 </head>
 <body>
@@ -26,7 +60,41 @@
 <label>Drive-thru overall (sec)<input type="number" name="driveOverall"></label><label>Lunch (sec)<input type="number" name="driveLunch"></label><label>Afternoon (sec)<input type="number" name="driveAfternoon"></label>
 <label>Dinner (sec)<input type="number" name="driveDinner"></label><label>Evening (sec)<input type="number" name="driveEvening"></label><label>Food variance (%)<input type="number" step=".01" name="foodVariance"></label>
 <label>Labor hours saved<input type="number" step=".1" name="laborHoursSaved"></label></div><label style="margin-top:12px">Comments / manager notes<textarea rows="4" name="comments"></textarea></label><div class="row"><button class="primary">Save Week</button><button type="button" class="secondary" onclick="clearForm()">Clear</button></div></form></div><div class="card"><div class="eyebrow">History</div><h2>Saved weeks</h2><div id="history"></div></div></section>
-<section id="trends" class="view"><div class="card"><div class="eyebrow">Weekly history</div><h2>Trend chart</h2><label>Metric<select id="metric"><option value="osat">OSAT</option><option value="accuracy">Accuracy</option><option value="cleanliness">Cleanliness</option><option value="speed">Speed</option><option value="taste">Taste</option><option value="friendliness">Friendliness</option><option value="surveyCount">Survey count</option><option value="driveOverall">Drive-thru</option><option value="foodVariance">Food variance</option><option value="laborHoursSaved">Labor saved</option><option value="sales">Sales</option></select></label><canvas id="chart" width="1000" height="430"></canvas><p id="trendText" class="muted"></p></div></section>
+
+<section id="trends" class="view">
+  <div class="card">
+    <div class="trend-header">
+      <div><div class="eyebrow">Performance history</div><h2 style="margin-bottom:4px">Trends</h2><p class="muted" style="margin-bottom:0">Review the same saved data by week or by month.</p></div>
+      <span id="trendBadge" class="trend-badge">Weekly summary</span>
+    </div>
+    <div class="trend-controls">
+      <label>Metric<select id="metric">
+        <option value="osat">OSAT</option><option value="accuracy">Accuracy</option><option value="cleanliness">Cleanliness</option><option value="speed">Speed</option><option value="taste">Taste</option><option value="friendliness">Friendliness</option><option value="surveyCount">Survey count</option><option value="driveOverall">Drive-thru</option><option value="foodVariance">Food variance</option><option value="laborHoursSaved">Labor saved</option><option value="sales">Sales</option>
+      </select></label>
+      <label>Summary<select id="trendMode"><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select></label>
+      <label>Show<select id="trendRange"><option value="6">6 periods</option><option value="8">8 periods</option><option value="12">12 periods</option><option value="all">All</option></select></label>
+    </div>
+    <div class="trend-kpis">
+      <div class="trend-stat"><div class="klabel" id="trendCurrentLabel">Current week</div><div class="kvalue" id="trendCurrent">—</div><div class="ksub">Latest saved period</div></div>
+      <div class="trend-stat"><div class="klabel">Change</div><div class="kvalue" id="trendChange">—</div><div class="ksub" id="trendChangeSub">vs previous week</div></div>
+      <div class="trend-stat"><div class="klabel" id="trendAvgLabel">Weekly average</div><div class="kvalue" id="trendAverage">—</div><div class="ksub">Selected periods</div></div>
+      <div class="trend-stat"><div class="klabel" id="trendBestLabel">Best week</div><div class="kvalue" id="trendBest">—</div><div class="ksub" id="trendBestSub">—</div></div>
+    </div>
+    <div class="trend-layout">
+      <div class="trend-card">
+        <h3 id="trendChartTitle">OSAT weekly trend</h3>
+        <p id="trendChartSub" class="muted">Each point is one saved week.</p>
+        <canvas id="chart" width="1000" height="430"></canvas>
+        <p id="trendText" class="muted"></p>
+        <table class="trend-table"><thead><tr><th>Period</th><th>Value</th><th>Change</th></tr></thead><tbody id="trendTable"></tbody></table>
+      </div>
+      <div class="trend-card">
+        <div class="eyebrow">Manager read</div><h3>What changed</h3><div id="trendInsights"><p class="muted">Save at least one week to see insights.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="comm" class="view"><div class="card"><div style="display:flex;justify-content:space-between;gap:10px"><div><div class="eyebrow">Team communication</div><h2>Weekly board</h2></div><button class="secondary" onclick="print()">Print</button></div><div id="board" class="board"><p>Save a week to generate the board.</p></div></div></section>
 <section id="osm" class="view"><div class="card"><div class="eyebrow">Operations reference</div><h2>Ask the OSM</h2><div class="search"><input id="q" placeholder="Example: What does BLAST mean?"><button class="primary" onclick="searchOSM()">Search</button></div><p class="muted">Starter sample only. Verify answers against the current official OSM.</p><div id="results"></div></div></section>
 <section id="settings" class="view"><div class="card"><div class="eyebrow">Store profile</div><h2>Goals and settings</h2><form id="settingsForm"><div class="formgrid"><label>GM name<input name="gmName"></label><label>Store number<input name="storeNumber"></label><label>Location<input name="storeLocation"></label><label>OSAT goal (%)<input type="number" step=".1" name="osatGoal"></label><label>Drive-thru goal (sec)<input type="number" name="driveGoal"></label><label>Food variance company goal (%)<input type="number" step=".01" name="foodGoal"></label><label>Food variance district goal (%)<input type="number" step=".01" name="districtFoodGoal"></label><label>Labor hours goal<input type="number" step=".1" name="laborGoal"></label></div><div class="row"><button class="primary">Save Settings</button><button type="button" class="secondary" onclick="exportCSV()">Export CSV</button><button type="button" class="secondary" onclick="backup()">Backup JSON</button><label class="secondary">Restore JSON<input id="restore" type="file" accept="application/json" hidden></label></div></form></div></section>
@@ -42,7 +110,94 @@ function renderHistory(){let a=[...s.weeks].sort((x,y)=>y.weekStart.localeCompar
 function renderBoard(){let w=latest();if(!w){board.innerHTML='<p>Save a week to generate the board.</p>';return}let cats=['accuracy','cleanliness','speed','taste','friendliness'].filter(k=>w[k]!=null),hi=cats.length?cats.reduce((a,b)=>w[a]>w[b]?a:b):null,lo=cats.length?cats.reduce((a,b)=>w[a]<w[b]?a:b):null;board.innerHTML=`<div class="eyebrow">Weekly team update</div><h2>Store ${esc(s.settings.storeNumber||'—')}</h2><p>${fd(w.weekStart)} – ${end(w.weekStart)}</p><div class="boardgrid"><div class="panel"><h3>Guest Experience</h3><p><b>OSAT:</b> ${w.osat??'—'}% / Goal ${s.settings.osatGoal}%</p><p>Accuracy ${w.accuracy??'—'}% · Cleanliness ${w.cleanliness??'—'}%</p><p>Speed ${w.speed??'—'}% · Taste ${w.taste??'—'}% · Friendliness ${w.friendliness??'—'}%</p></div><div class="panel"><h3>Operations</h3><p><b>Drive-Thru:</b> ${w.driveOverall??'—'} sec / Goal ${s.settings.driveGoal}</p><p><b>Food Variance:</b> ${w.foodVariance??'—'}%</p><p><b>Labor Saved:</b> ${w.laborHoursSaved??'—'} hrs</p><p><b>Weekly Sales:</b> ${w.sales!=null?'$'+Number(w.sales).toLocaleString():'—'}</p></div><div class="panel"><h3>Recognition</h3><p>${hi?hi[0].toUpperCase()+hi.slice(1)+' was the strongest guest category.':'Add recognition.'}</p></div><div class="panel"><h3>Opportunity</h3><p>${lo?lo[0].toUpperCase()+lo.slice(1)+' was the lowest guest category.':'Choose an opportunity.'}</p></div></div><div class="panel" style="margin-top:12px"><h3>This Week's Focus</h3><ol>${priorities(w,prev()).map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div><div class="panel" style="margin-top:12px"><h3>Manager Notes</h3><p>${esc(w.comments||'No notes entered.')}</p></div>`}
 function clearForm(){weekForm.reset();delete weekForm.dataset.id}weekForm.onsubmit=e=>{e.preventDefault();let o=Object.fromEntries(new FormData(weekForm));['sales','surveyCount','osat','accuracy','cleanliness','speed','taste','friendliness','driveOverall','driveLunch','driveAfternoon','driveDinner','driveEvening','foodVariance','laborHoursSaved'].forEach(k=>o[k]=n(o[k]));o.id=weekForm.dataset.id||crypto.randomUUID();let i=s.weeks.findIndex(x=>x.id===o.id);i>=0?s.weeks[i]=o:s.weeks.push(o);save();clearForm();render();show('dash')};function editW(id){let w=s.weeks.find(x=>x.id===id);show('entry');Object.entries(w).forEach(([k,v])=>weekForm.elements[k]&&(weekForm.elements[k].value=v??''));weekForm.dataset.id=id}function delW(id){if(confirm('Delete this week?')){s.weeks=s.weeks.filter(x=>x.id!==id);save();render()}}
 function loadSettings(){Object.entries(s.settings).forEach(([k,v])=>settingsForm.elements[k]&&(settingsForm.elements[k].value=v??''))}settingsForm.onsubmit=e=>{e.preventDefault();let o=Object.fromEntries(new FormData(settingsForm));['osatGoal','driveGoal','foodGoal','districtFoodGoal','laborGoal'].forEach(k=>o[k]=n(o[k]));s.settings=o;save();render();alert('Settings saved.')};
-function draw(){let c=chart,x=c.getContext('2d'),key=metric.value,a=[...s.weeks].sort((m,n)=>m.weekStart.localeCompare(n.weekStart)).filter(w=>w[key]!=null);x.clearRect(0,0,c.width,c.height);x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);if(!a.length){x.fillStyle='#6f6668';x.font='24px system-ui';x.fillText('No data for this metric.',40,70);trendText.textContent='';return}let vals=a.map(w=>w[key]),min=Math.min(...vals),max=Math.max(...vals);if(min===max){min--;max++}let spread=max-min;min-=spread*.12;max+=spread*.12;let L=75,R=35,T=35,B=80;x.strokeStyle='#e5d9d4';x.fillStyle='#6f6668';x.font='16px system-ui';for(let i=0;i<=4;i++){let y=T+(c.height-T-B)*i/4;x.beginPath();x.moveTo(L,y);x.lineTo(c.width-R,y);x.stroke();x.fillText((max-(max-min)*i/4).toFixed(key==='foodVariance'?2:0),12,y+5)}let xf=i=>L+(c.width-L-R)*(a.length===1?.5:i/(a.length-1)),yf=v=>T+(max-v)/(max-min)*(c.height-T-B);x.strokeStyle='#9b1c1f';x.lineWidth=5;x.beginPath();a.forEach((w,i)=>i?x.lineTo(xf(i),yf(w[key])):x.moveTo(xf(i),yf(w[key])));x.stroke();x.fillStyle='#9b1c1f';a.forEach((w,i)=>{x.beginPath();x.arc(xf(i),yf(w[key]),7,0,Math.PI*2);x.fill()});let d=vals.at(-1)-vals[0];trendText.textContent=`Changed ${d>=0?'up':'down'} ${Math.abs(d).toFixed(key==='foodVariance'?2:1)} across saved weeks.`}metric.onchange=draw;
+
+/* Trends V3 logic */
+const TREND_META={
+  osat:{name:'OSAT',unit:'%',lower:false,agg:'avg'},
+  accuracy:{name:'Accuracy',unit:'%',lower:false,agg:'avg'},
+  cleanliness:{name:'Cleanliness',unit:'%',lower:false,agg:'avg'},
+  speed:{name:'Speed',unit:'%',lower:false,agg:'avg'},
+  taste:{name:'Taste',unit:'%',lower:false,agg:'avg'},
+  friendliness:{name:'Friendliness',unit:'%',lower:false,agg:'avg'},
+  surveyCount:{name:'Survey count',unit:'',lower:false,agg:'sum'},
+  driveOverall:{name:'Drive-thru',unit:' sec',lower:true,agg:'avg'},
+  foodVariance:{name:'Food variance',unit:'%',lower:true,agg:'avg'},
+  laborHoursSaved:{name:'Labor saved',unit:' hrs',lower:false,agg:'sum'},
+  sales:{name:'Sales',unit:'',lower:false,agg:'sum'}
+};
+function trendFmt(key,v){
+  if(v==null||Number.isNaN(v))return '—';
+  if(key==='sales')return '$'+Math.round(v).toLocaleString();
+  if(key==='driveOverall'){let sec=Math.round(v);return `${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`;}
+  if(key==='foodVariance')return Number(v).toFixed(2)+'%';
+  if(['osat','accuracy','cleanliness','speed','taste','friendliness'].includes(key))return Number(v).toFixed(1).replace('.0','')+'%';
+  if(key==='laborHoursSaved')return Number(v).toFixed(1).replace('.0','')+' hrs';
+  return Math.round(v).toLocaleString();
+}
+function trendDeltaFmt(key,v){
+  if(v==null)return '—';let sign=v>0?'+':v<0?'−':'';
+  let a=Math.abs(v);
+  if(key==='sales')return sign+'$'+Math.round(a).toLocaleString();
+  if(key==='driveOverall')return sign+Math.round(a)+' sec';
+  if(key==='foodVariance')return sign+a.toFixed(2)+' pts';
+  if(['osat','accuracy','cleanliness','speed','taste','friendliness'].includes(key))return sign+a.toFixed(1).replace('.0','')+' pts';
+  if(key==='laborHoursSaved')return sign+a.toFixed(1).replace('.0','')+' hrs';
+  return sign+Math.round(a).toLocaleString();
+}
+function monthlySeries(key){
+  let groups={};
+  [...s.weeks].sort((a,b)=>a.weekStart.localeCompare(b.weekStart)).forEach(w=>{
+    if(w[key]==null||!w.weekStart)return;
+    let d=new Date(w.weekStart+'T12:00:00'),k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    (groups[k]??=[]).push(Number(w[key]));
+  });
+  return Object.entries(groups).sort(([a],[b])=>a.localeCompare(b)).map(([k,vals])=>{
+    let [y,m]=k.split('-').map(Number),value=TREND_META[key].agg==='sum'?vals.reduce((a,b)=>a+b,0):vals.reduce((a,b)=>a+b,0)/vals.length;
+    return {label:new Date(y,m-1,1).toLocaleDateString(undefined,{month:'short',year:'numeric'}),value,key:k,count:vals.length};
+  });
+}
+function weeklySeries(key){
+  return [...s.weeks].sort((a,b)=>a.weekStart.localeCompare(b.weekStart)).filter(w=>w[key]!=null).map(w=>({label:new Date(w.weekStart+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'}),value:Number(w[key]),key:w.weekStart,count:1}));
+}
+function trendSeries(key,mode){
+  let a=mode==='monthly'?monthlySeries(key):weeklySeries(key);
+  let r=trendRange.value;return r==='all'?a:a.slice(-Number(r));
+}
+function draw(){
+  let c=chart,x=c.getContext('2d'),key=metric.value,mode=trendMode.value,meta=TREND_META[key],a=trendSeries(key,mode);
+  trendBadge.textContent=mode==='monthly'?'Monthly summary':'Weekly summary';
+  trendCurrentLabel.textContent=mode==='monthly'?'Current month':'Current week';
+  trendChangeSub.textContent=mode==='monthly'?'vs previous month':'vs previous week';
+  trendAvgLabel.textContent=mode==='monthly'?'Monthly average':'Weekly average';
+  trendBestLabel.textContent=mode==='monthly'?'Best month':'Best week';
+  trendChartTitle.textContent=`${meta.name} ${mode} trend`;
+  trendChartSub.textContent=mode==='monthly'
+    ?(meta.agg==='sum'?`Monthly total from saved weeks.`:`Monthly average from saved weeks.`)
+    :'Each point is one saved week.';
+  x.clearRect(0,0,c.width,c.height);x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);
+  if(!a.length){
+    x.fillStyle='#6f6668';x.font='24px system-ui';x.fillText('No data for this metric.',40,70);
+    trendText.textContent='';trendCurrent.textContent=trendChange.textContent=trendAverage.textContent=trendBest.textContent='—';trendBestSub.textContent='—';trendTable.innerHTML='';trendInsights.innerHTML='<p class="muted">Save at least one week to see insights.</p>';return
+  }
+  let vals=a.map(p=>p.value),cur=vals.at(-1),previous=vals.length>1?vals.at(-2):null,change=previous==null?null:cur-previous,avg=vals.reduce((m,n)=>m+n,0)/vals.length,best=meta.lower?Math.min(...vals):Math.max(...vals),bestI=vals.indexOf(best);
+  trendCurrent.textContent=trendFmt(key,cur);trendChange.textContent=trendDeltaFmt(key,change);trendAverage.textContent=trendFmt(key,avg);trendBest.textContent=trendFmt(key,best);trendBestSub.textContent=a[bestI].label;
+  let min=Math.min(...vals),max=Math.max(...vals);if(min===max){min--;max++}let spread=max-min;min-=spread*.12;max+=spread*.12;let L=75,R=35,T=35,B=80;
+  x.strokeStyle='#e5d9d4';x.fillStyle='#6f6668';x.font='15px system-ui';
+  for(let i=0;i<=4;i++){let y=T+(c.height-T-B)*i/4;x.beginPath();x.moveTo(L,y);x.lineTo(c.width-R,y);x.stroke();let val=max-(max-min)*i/4;x.fillText(key==='sales'?'$'+Math.round(val/1000)+'k':key==='driveOverall'?Math.round(val)+'s':key==='foodVariance'?val.toFixed(2):Math.round(val),10,y+5)}
+  let xf=i=>L+(c.width-L-R)*(a.length===1?.5:i/(a.length-1)),yf=v=>T+(max-v)/(max-min)*(c.height-T-B);
+  x.strokeStyle='#9b1c1f';x.lineWidth=5;x.beginPath();a.forEach((p,i)=>i?x.lineTo(xf(i),yf(p.value)):x.moveTo(xf(i),yf(p.value)));x.stroke();
+  x.fillStyle='#9b1c1f';a.forEach((p,i)=>{x.beginPath();x.arc(xf(i),yf(p.value),7,0,Math.PI*2);x.fill()});
+  x.fillStyle='#6f6668';x.font='13px system-ui';x.textAlign='center';a.forEach((p,i)=>{if(a.length<=8||i%2===0||i===a.length-1)x.fillText(p.label.replace(', '+new Date().getFullYear(),''),xf(i),c.height-35)});x.textAlign='left';
+  let start=vals[0],overall=cur-start,overallGood=meta.lower?overall<0:overall>0;
+  trendText.textContent=a.length>1?`${meta.name} is ${overall===0?'unchanged':overallGood?'better':'worse'} by ${trendDeltaFmt(key,overall).replace(/^[+−]/,'')} from the first displayed ${mode==='monthly'?'month':'week'} to the latest.`:'One period is available.';
+  trendTable.innerHTML=a.slice().reverse().map((p,ri)=>{let i=a.length-1-ri,delta=i>0?p.value-a[i-1].value:null;return `<tr><td>${esc(p.label)}</td><td><b>${trendFmt(key,p.value)}</b></td><td>${trendDeltaFmt(key,delta)}</td></tr>`}).join('');
+  let direction=change==null?'No previous period yet.':change===0?'The latest period is unchanged.':(meta.lower?change<0:change>0)?`The latest ${mode==='monthly'?'month':'week'} improved by ${trendDeltaFmt(key,change).replace(/^[+−]/,'')}.`:`The latest ${mode==='monthly'?'month':'week'} moved the wrong way by ${trendDeltaFmt(key,change).replace(/^[+−]/,'')}.`;
+  let compare=`Best ${mode==='monthly'?'month':'week'}: ${a[bestI].label} at ${trendFmt(key,best)}.`;
+  let action=key==='driveOverall'?'Compare the slowest period by daypart, deployment, product readiness and pull-ahead use.':key==='foodVariance'?'Compare waste, portions, transfers and top-loss items between the best and worst periods.':key==='sales'?'Compare traffic, promotions, staffing and daypart sales between the strongest and weakest periods.':key==='osat'?'Use the guest-category trends to identify which experience metric is pulling OSAT up or down.':`Compare the best and weakest periods and look for execution or staffing differences.`;
+  trendInsights.innerHTML=`<div class="trend-insight"><b>Current direction</b>${direction}</div><div class="trend-insight"><b>Best period</b>${compare}</div><div class="trend-insight"><b>Manager check</b>${action}</div>`;
+}
+metric.onchange=draw;trendMode.onchange=draw;trendRange.onchange=draw;
+
 function searchOSM(){let q=document.getElementById('q').value.toLowerCase(),terms=q.split(/\s+/).filter(x=>x.length>2),a=OSM.map(o=>({o,score:terms.reduce((n,t)=>n+((o.title+' '+o.section+' '+o.keys+' '+o.text).toLowerCase().includes(t)?1:0),0)})).filter(x=>x.score).sort((a,b)=>b.score-a.score);results.innerHTML=a.length?a.map(({o})=>`<div class="result"><div class="eyebrow">${o.section} · Page ${o.page}</div><h3>${o.title}</h3><p>${o.text}</p><p class="muted">Verify against the current official OSM.</p></div>`).join(''):'<p>No result in the starter sample.</p>'}
 function dl(name,text,type){let u=URL.createObjectURL(new Blob([text],{type})),a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u)}function exportCSV(){let h=['weekStart','sales','surveyCount','osat','accuracy','cleanliness','speed','taste','friendliness','driveOverall','driveLunch','driveAfternoon','driveDinner','driveEvening','foodVariance','laborHoursSaved','comments'];dl('gm-assistant.csv',[h.join(','),...s.weeks.map(w=>h.map(k=>'"'+String(w[k]??'').replaceAll('"','""')+'"').join(','))].join('\n'),'text/csv')}function backup(){dl('gm-assistant-backup.json',JSON.stringify(s,null,2),'application/json')}restore.onchange=e=>{let r=new FileReader;r.onload=()=>{try{s=JSON.parse(r.result);save();render();alert('Restored.')}catch{alert('Invalid backup.')}};r.readAsText(e.target.files[0])};
 let prompt;addEventListener('beforeinstallprompt',e=>{e.preventDefault();prompt=e;install.hidden=false});install.onclick=async()=>{if(prompt){prompt.prompt();await prompt.userChoice;prompt=null;install.hidden=true}};if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js'));render();
