@@ -1,50 +1,834 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#9b1c1f"><meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.webmanifest"><title>GM Assistant</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GM Assistant V2</title>
 <style>
-:root{--red:#9b1c1f;--dark:#6c1114;--cream:#fbf7f1;--ink:#251f20;--muted:#6f6668;--line:#e5d9d4;--good:#216e3a;--bad:#a1272d}*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:var(--cream);color:var(--ink)}header{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:#fbf7f1ee;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}h1,h2,h3,p{margin-top:0}h1{margin:0}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--red);font-weight:800;margin-bottom:4px}main{width:min(1100px,calc(100% - 20px));margin:auto;padding:12px 0 50px}.tabs{display:flex;gap:8px;overflow:auto;padding:8px 0 14px}.tabs button,.secondary,.primary{border-radius:12px;padding:10px 14px;font-weight:750}.tabs button,.secondary{border:1px solid var(--line);background:#fff}.tabs button.active,.primary{background:var(--red);color:#fff;border:1px solid var(--red)}.view{display:none}.view.active{display:block}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 10px 26px #3d1c1e12}.hero{display:flex;justify-content:space-between;gap:15px;align-items:center;background:linear-gradient(135deg,#fff,#f4e5e1)}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.metric{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px}.value{font-size:30px;font-weight:850}.status{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:800}.good{color:var(--good);background:#e8f4eb}.bad{color:var(--bad);background:#fbe7e8}.muted{color:var(--muted)}form .formgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}label{display:grid;gap:5px;font-size:14px;font-weight:700}input,textarea,select{width:100%;padding:11px;border:1px solid var(--line);border-radius:11px;font:inherit}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.history{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}canvas{width:100%;height:auto}.board{border:2px solid var(--red);border-radius:15px;padding:16px}.boardgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.panel{border:1px solid var(--line);border-radius:13px;padding:12px}.search{display:grid;grid-template-columns:1fr auto;gap:8px}.result{border-top:1px solid var(--line);padding:14px 0}@media(max-width:800px){.grid{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr 1fr!important}.two{grid-template-columns:1fr}}@media(max-width:520px){.grid,.formgrid,.boardgrid{grid-template-columns:1fr!important}.hero{align-items:stretch;flex-direction:column}.search{grid-template-columns:1fr}}@media print{body *{visibility:hidden}#board,#board *{visibility:visible}#board{position:absolute;inset:0;border:0}}
+:root{
+  --bg:#f6f1e8;
+  --surface:#fff;
+  --surface-2:#fbf8f3;
+  --ink:#211f1d;
+  --muted:#6f675f;
+  --line:#ded6cd;
+  --brand:#9f1d22;
+  --brand-2:#7b1418;
+  --good:#1d7f50;
+  --warn:#b57816;
+  --bad:#b52d32;
+  --blue:#1f7ec1;
+  --shadow:0 12px 36px rgba(53,42,33,.08);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+button,select,input,textarea{font:inherit}
+.app{
+  min-height:100vh;
+}
+.header{
+  position:sticky;
+  top:0;
+  z-index:10;
+  background:rgba(250,247,241,.96);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid #e6ddd3;
+}
+.header-inner{
+  max-width:1240px;
+  margin:0 auto;
+  padding:18px 16px 12px;
+}
+.brand-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+.brand small{
+  display:block;
+  color:var(--brand);
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  font-size:12px;
+}
+.brand h1{
+  margin:3px 0 0;
+  font-size:32px;
+  line-height:1;
+}
+.store-chip{
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  padding:9px 12px;
+  font-size:13px;
+  font-weight:800;
+  color:#5e554d;
+}
+.nav{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding-top:14px;
+}
+.nav button{
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--blue);
+  border-radius:13px;
+  padding:10px 15px;
+  font-weight:800;
+  white-space:nowrap;
+  cursor:pointer;
+}
+.nav button.active{
+  background:var(--brand);
+  color:#fff;
+  border-color:var(--brand);
+}
+main{
+  max-width:1240px;
+  margin:0 auto;
+  padding:18px 12px 34px;
+}
+.page{
+  display:none;
+}
+.page.active{
+  display:block;
+}
+.hero{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:14px;
+}
+.hero h2{
+  margin:3px 0 0;
+  font-size:30px;
+}
+.eyebrow{
+  color:var(--brand);
+  font-size:12px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+}
+.actions{
+  display:flex;
+  gap:8px;
+}
+.btn{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:12px;
+  padding:10px 14px;
+  font-weight:800;
+  cursor:pointer;
+}
+.btn.primary{
+  background:var(--brand);
+  border-color:var(--brand);
+  color:#fff;
+}
+.card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:16px;
+  box-shadow:var(--shadow);
+}
+.kpis{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:12px;
+  margin-bottom:14px;
+}
+.kpi{
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:15px;
+  background:#fff;
+  min-height:112px;
+}
+.kpi.good{background:#eff9f3;border-color:#cce8d7}
+.kpi.warn{background:#fff7e8;border-color:#ebd5a8}
+.kpi.bad{background:#fff0f0;border-color:#efc7c9}
+.kpi .label{
+  font-size:12px;
+  font-weight:900;
+  color:#6d655e;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+.kpi .value{
+  font-size:29px;
+  font-weight:900;
+  margin:8px 0 6px;
+}
+.kpi .sub{
+  font-size:13px;
+  color:var(--muted);
+}
+.grid-2{
+  display:grid;
+  grid-template-columns:1.45fr .85fr;
+  gap:14px;
+}
+.grid-3{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+.panel-title{
+  margin:0 0 4px;
+  font-size:20px;
+}
+.panel-sub{
+  margin:0 0 14px;
+  color:var(--muted);
+  font-size:13px;
+}
+.controls{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:10px;
+  margin-bottom:14px;
+}
+.control label{
+  display:block;
+  font-size:12px;
+  font-weight:900;
+  color:#5f5851;
+  margin-bottom:6px;
+}
+.control select,
+.control input,
+.control textarea{
+  width:100%;
+  border:1px solid #d7d0c8;
+  background:#fff;
+  border-radius:12px;
+  padding:11px 12px;
+}
+.chart-wrap{
+  height:380px;
+}
+canvas{
+  width:100%;
+  height:100%;
+}
+.insight{
+  border:1px solid #e8e1da;
+  border-radius:13px;
+  padding:12px;
+  background:#fbfaf8;
+  margin-bottom:10px;
+}
+.insight strong{
+  display:block;
+  font-size:14px;
+  margin-bottom:4px;
+}
+.insight span{
+  color:#5f5953;
+  font-size:13px;
+  line-height:1.4;
+}
+.table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:14px;
+  font-size:13px;
+}
+.table th,.table td{
+  border-top:1px solid #ece5de;
+  padding:9px 8px;
+  text-align:left;
+}
+.table th{
+  color:#6b635c;
+  text-transform:uppercase;
+  font-size:11px;
+  letter-spacing:.04em;
+}
+.metric-row{
+  display:grid;
+  grid-template-columns:130px 1fr 50px;
+  gap:10px;
+  align-items:center;
+  margin:11px 0;
+}
+.metric-row .name{font-weight:800}
+.bar{
+  height:10px;
+  border-radius:999px;
+  background:#ece7e2;
+  overflow:hidden;
+}
+.fill{
+  height:100%;
+  background:var(--brand);
+  border-radius:inherit;
+}
+.metric-row .num{
+  text-align:right;
+  font-weight:900;
+}
+.board{
+  border:2px solid var(--brand);
+  border-radius:20px;
+  background:#fff;
+  padding:18px;
+}
+.board-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+}
+.board-head h3{
+  margin:3px 0 4px;
+  font-size:27px;
+}
+.note-box{
+  min-height:105px;
+  border:1px dashed #d9d1c8;
+  border-radius:14px;
+  padding:12px;
+  color:#625b54;
+  background:#fcfaf7;
+}
+.entry-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+.form-card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:15px;
+}
+.form-card h3{
+  margin:0 0 12px;
+  font-size:18px;
+}
+.form-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:10px;
+}
+.form-row label{
+  font-size:12px;
+  font-weight:800;
+  color:#5f5851;
+}
+.form-row input{
+  width:100%;
+  margin-top:5px;
+  border:1px solid #d8d0c7;
+  border-radius:10px;
+  padding:10px 11px;
+}
+.save-status{
+  margin-top:10px;
+  font-size:13px;
+  color:var(--good);
+  font-weight:800;
+  display:none;
+}
+@media (max-width:950px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .grid-2{grid-template-columns:1fr}
+  .grid-3{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .kpis{grid-template-columns:1fr}
+  .controls{grid-template-columns:1fr}
+  .entry-grid{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+  .hero{align-items:flex-start;flex-direction:column}
+}
+@media print{
+  .header,.actions,.controls{display:none!important}
+  body{background:#fff}
+  main{max-width:none;padding:0}
+  .page{display:none!important}
+  #communication.page.active{display:block!important}
+  .card{box-shadow:none;border:0}
+  .board{border:1px solid #222}
+}
 </style>
 </head>
 <body>
-<header><div><div class="eyebrow">Restaurant operations</div><h1>GM Assistant</h1></div><button id="install" class="secondary" hidden>Install</button></header>
-<main>
-<nav class="tabs">
-<button class="active" data-v="dash">Dashboard</button><button data-v="entry">Weekly Entry</button><button data-v="trends">Trends</button><button data-v="comm">Communication</button><button data-v="osm">Ask OSM</button><button data-v="settings">Settings</button>
-</nav>
-<section id="dash" class="view active">
-<div class="card hero"><div><div class="eyebrow">Current weekly review</div><h2 id="weekTitle">No data yet</h2><p id="summary" class="muted">Enter the completed Saturday–Friday week.</p></div><button class="primary" onclick="show('entry')">Enter Weekly Data</button></div>
-<div id="cards" class="grid"></div>
-<div class="two"><div class="card"><div class="eyebrow">Assistant review</div><h2>Top priorities</h2><ol id="priorities"><li>Add weekly data.</li></ol></div><div class="card"><div class="eyebrow">Meeting mode</div><h2>Fast answers</h2><div id="meeting"><p class="muted">Latest answers will appear here.</p></div></div></div>
-</section>
-<section id="entry" class="view"><div class="card"><div class="eyebrow">Saturday workflow</div><h2>Weekly data entry</h2><form id="weekForm"><div class="formgrid">
-<label>Week start (Saturday)<input required type="date" name="weekStart"></label><label>Weekly sales ($)<input type="number" step=".01" name="sales"></label><label>Survey count<input type="number" name="surveyCount"></label>
-<label>OSAT (%)<input type="number" step=".1" name="osat"></label><label>Accuracy (%)<input type="number" step=".1" name="accuracy"></label><label>Cleanliness (%)<input type="number" step=".1" name="cleanliness"></label>
-<label>Speed (%)<input type="number" step=".1" name="speed"></label><label>Taste (%)<input type="number" step=".1" name="taste"></label><label>Friendliness (%)<input type="number" step=".1" name="friendliness"></label>
-<label>Drive-thru overall (sec)<input type="number" name="driveOverall"></label><label>Lunch (sec)<input type="number" name="driveLunch"></label><label>Afternoon (sec)<input type="number" name="driveAfternoon"></label>
-<label>Dinner (sec)<input type="number" name="driveDinner"></label><label>Evening (sec)<input type="number" name="driveEvening"></label><label>Food variance (%)<input type="number" step=".01" name="foodVariance"></label>
-<label>Labor hours saved<input type="number" step=".1" name="laborHoursSaved"></label></div><label style="margin-top:12px">Comments / manager notes<textarea rows="4" name="comments"></textarea></label><div class="row"><button class="primary">Save Week</button><button type="button" class="secondary" onclick="clearForm()">Clear</button></div></form></div><div class="card"><div class="eyebrow">History</div><h2>Saved weeks</h2><div id="history"></div></div></section>
-<section id="trends" class="view"><div class="card"><div class="eyebrow">Weekly history</div><h2>Trend chart</h2><label>Metric<select id="metric"><option value="osat">OSAT</option><option value="accuracy">Accuracy</option><option value="cleanliness">Cleanliness</option><option value="speed">Speed</option><option value="taste">Taste</option><option value="friendliness">Friendliness</option><option value="surveyCount">Survey count</option><option value="driveOverall">Drive-thru</option><option value="foodVariance">Food variance</option><option value="laborHoursSaved">Labor saved</option><option value="sales">Sales</option></select></label><canvas id="chart" width="1000" height="430"></canvas><p id="trendText" class="muted"></p></div></section>
-<section id="comm" class="view"><div class="card"><div style="display:flex;justify-content:space-between;gap:10px"><div><div class="eyebrow">Team communication</div><h2>Weekly board</h2></div><button class="secondary" onclick="print()">Print</button></div><div id="board" class="board"><p>Save a week to generate the board.</p></div></div></section>
-<section id="osm" class="view"><div class="card"><div class="eyebrow">Operations reference</div><h2>Ask the OSM</h2><div class="search"><input id="q" placeholder="Example: What does BLAST mean?"><button class="primary" onclick="searchOSM()">Search</button></div><p class="muted">Starter sample only. Verify answers against the current official OSM.</p><div id="results"></div></div></section>
-<section id="settings" class="view"><div class="card"><div class="eyebrow">Store profile</div><h2>Goals and settings</h2><form id="settingsForm"><div class="formgrid"><label>GM name<input name="gmName"></label><label>Store number<input name="storeNumber"></label><label>Location<input name="storeLocation"></label><label>OSAT goal (%)<input type="number" step=".1" name="osatGoal"></label><label>Drive-thru goal (sec)<input type="number" name="driveGoal"></label><label>Food variance company goal (%)<input type="number" step=".01" name="foodGoal"></label><label>Food variance district goal (%)<input type="number" step=".01" name="districtFoodGoal"></label><label>Labor hours goal<input type="number" step=".1" name="laborGoal"></label></div><div class="row"><button class="primary">Save Settings</button><button type="button" class="secondary" onclick="exportCSV()">Export CSV</button><button type="button" class="secondary" onclick="backup()">Backup JSON</button><label class="secondary">Restore JSON<input id="restore" type="file" accept="application/json" hidden></label></div></form></div></section>
-</main>
+<div class="app">
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand-row">
+        <div class="brand">
+          <small>Restaurant Operations</small>
+          <h1>GM Assistant V2</h1>
+        </div>
+        <div class="store-chip">Store 8571</div>
+      </div>
+      <nav class="nav">
+        <button data-page="dashboard" class="active">Dashboard</button>
+        <button data-page="weekly">Weekly Entry</button>
+        <button data-page="trends">Trends</button>
+        <button data-page="communication">Communication</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section id="dashboard" class="page active">
+      <div class="hero">
+        <div>
+          <div class="eyebrow">Overview</div>
+          <h2>Manager dashboard</h2>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi warn"><div class="label">OSAT</div><div class="value" data-live="osat">54%</div><div class="sub">Goal 55%</div></div>
+        <div class="kpi bad"><div class="label">Drive-Thru</div><div class="value" data-live="drive">1:53</div><div class="sub">Goal 1:00</div></div>
+        <div class="kpi"><div class="label">Weekly Sales</div><div class="value" data-live="sales">$19,003</div><div class="sub">Current week</div></div>
+        <div class="kpi bad"><div class="label">Food Variance</div><div class="value" data-live="food">0.15%</div><div class="sub">Goal 0.00%</div></div>
+        <div class="kpi warn"><div class="label">Labor Saved</div><div class="value" data-live="labor">24 hrs</div><div class="sub">Goal 40 hrs</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3 class="panel-title">Guest experience</h3>
+          <p class="panel-sub">Current OSAT category performance</p>
+          <div class="metric-row"><div class="name">Accuracy</div><div class="bar"><div class="fill" style="width:64%"></div></div><div class="num">64%</div></div>
+          <div class="metric-row"><div class="name">Cleanliness</div><div class="bar"><div class="fill" style="width:54%"></div></div><div class="num">54%</div></div>
+          <div class="metric-row"><div class="name">Speed</div><div class="bar"><div class="fill" style="width:57%"></div></div><div class="num">57%</div></div>
+          <div class="metric-row"><div class="name">Taste</div><div class="bar"><div class="fill" style="width:58%"></div></div><div class="num">58%</div></div>
+          <div class="metric-row"><div class="name">Friendliness</div><div class="bar"><div class="fill" style="width:63%"></div></div><div class="num">63%</div></div>
+        </div>
+
+        <div class="card">
+          <h3 class="panel-title">This week's priorities</h3>
+          <p class="panel-sub">Fast manager read</p>
+          <div class="insight"><strong>1. Raise OSAT</strong><span>Push cleanliness and speed above current levels.</span></div>
+          <div class="insight"><strong>2. Reduce Drive-Thru</strong><span>Review deployment, readiness, and pull-ahead usage.</span></div>
+          <div class="insight"><strong>3. Protect food cost</strong><span>Review waste, portions, transfers, and top losses.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="weekly" class="page">
+      <div class="hero">
+        <div>
+          <div class="eyebrow">Data Entry</div>
+          <h2>Weekly entry</h2>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="saveWeek">Save week</button>
+        </div>
+      </div>
+
+      <div class="entry-grid">
+        <div class="form-card">
+          <h3>Core metrics</h3>
+          <div class="form-row">
+            <label>Weekly Sales<input id="inSales" type="number" value="19003"></label>
+            <label>OSAT %<input id="inOsat" type="number" value="54"></label>
+          </div>
+          <div class="form-row">
+            <label>Drive-Thru Seconds<input id="inDrive" type="number" value="113"></label>
+            <label>Food Variance %<input id="inFood" type="number" step="0.01" value="0.15"></label>
+          </div>
+          <div class="form-row">
+            <label>Labor Saved Hours<input id="inLabor" type="number" value="24"></label>
+            <label>Week Ending<input id="inWeek" type="date" value="2026-08-15"></label>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3>Guest metrics</h3>
+          <div class="form-row">
+            <label>Accuracy %<input id="inAccuracy" type="number" value="64"></label>
+            <label>Cleanliness %<input id="inCleanliness" type="number" value="54"></label>
+          </div>
+          <div class="form-row">
+            <label>Speed %<input id="inSpeed" type="number" value="57"></label>
+            <label>Taste %<input id="inTaste" type="number" value="58"></label>
+          </div>
+          <div class="form-row">
+            <label>Friendliness %<input id="inFriendliness" type="number" value="63"></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <h3 class="panel-title">Manager notes</h3>
+        <textarea id="inNotes" style="width:100%;min-height:120px;border:1px solid #d8d0c7;border-radius:12px;padding:12px" placeholder="Enter key notes, staffing issues, equipment concerns, wins, or follow-up items..."></textarea>
+        <div class="save-status" id="saveStatus">Saved to this prototype.</div>
+      </div>
+    </section>
+
+    <section id="trends" class="page">
+      <div class="hero">
+        <div>
+          <div class="eyebrow">History</div>
+          <h2>Performance trends</h2>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="controls">
+          <div class="control">
+            <label>Metric</label>
+            <select id="metricSelect">
+              <option value="sales">Sales</option>
+              <option value="osat">OSAT</option>
+              <option value="drive">Drive-Thru Time</option>
+              <option value="food">Food Variance</option>
+              <option value="labor">Labor Saved</option>
+            </select>
+          </div>
+          <div class="control">
+            <label>Summary</label>
+            <select id="summarySelect">
+              <option value="weekly">Weekly summary</option>
+              <option value="monthly">Monthly summary</option>
+            </select>
+          </div>
+          <div class="control">
+            <label>Range</label>
+            <select id="rangeSelect">
+              <option value="6">6 periods</option>
+              <option value="4">4 periods</option>
+              <option value="3">3 periods</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi"><div class="label" id="k1label">Current Week</div><div class="value" id="k1">$19,003</div><div class="sub">Latest period</div></div>
+          <div class="kpi" id="changeCard"><div class="label">Change</div><div class="value" id="k2">-$811</div><div class="sub">vs first period</div></div>
+          <div class="kpi"><div class="label" id="k3label">Weekly Average</div><div class="value" id="k3">$20,259</div><div class="sub">Selected range</div></div>
+          <div class="kpi"><div class="label" id="k4label">Best Week</div><div class="value" id="k4">$22,573</div><div class="sub" id="k4sub">Week 3</div></div>
+          <div class="kpi"><div class="label">Periods</div><div class="value" id="k5">6</div><div class="sub">Displayed</div></div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <h3 class="panel-title" id="chartTitle">Weekly sales trend</h3>
+            <p class="panel-sub" id="chartSub">Sales performance by week</p>
+            <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+            <table class="table">
+              <thead><tr><th>Period</th><th>Value</th><th>Change</th></tr></thead>
+              <tbody id="trendTable"></tbody>
+            </table>
+          </div>
+          <div>
+            <h3 class="panel-title">Manager insights</h3>
+            <p class="panel-sub">What the selected trend is telling you</p>
+            <div id="insightWrap"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="communication" class="page">
+      <div class="hero">
+        <div>
+          <div class="eyebrow">Team Communication</div>
+          <h2>Weekly board</h2>
+        </div>
+        <div class="actions">
+          <button class="btn" onclick="window.print()">Print</button>
+        </div>
+      </div>
+
+      <div class="board">
+        <div class="board-head">
+          <div>
+            <div class="eyebrow">Weekly Team Update</div>
+            <h3>Store 8571</h3>
+            <div style="color:var(--muted)">Current operating week</div>
+          </div>
+          <div class="store-chip">3 priorities</div>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi warn"><div class="label">OSAT</div><div class="value" data-live="osat">54%</div><div class="sub">Goal 55%</div></div>
+          <div class="kpi bad"><div class="label">Drive-Thru</div><div class="value" data-live="drive">1:53</div><div class="sub">Goal 1:00</div></div>
+          <div class="kpi"><div class="label">Weekly Sales</div><div class="value" data-live="sales">$19,003</div><div class="sub">Current week</div></div>
+          <div class="kpi bad"><div class="label">Food Variance</div><div class="value" data-live="food">0.15%</div><div class="sub">Goal 0.00%</div></div>
+          <div class="kpi warn"><div class="label">Labor Saved</div><div class="value" data-live="labor">24 hrs</div><div class="sub">Goal 40 hrs</div></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card" style="box-shadow:none">
+            <h3 class="panel-title">Guest experience</h3>
+            <div id="commGuest"></div>
+          </div>
+          <div class="card" style="box-shadow:none">
+            <h3 class="panel-title">This week's focus</h3>
+            <div class="insight"><strong>Raise OSAT</strong><span>Focus on the lowest guest category.</span></div>
+            <div class="insight"><strong>Improve Drive-Thru</strong><span>Keep product ready and use pull-ahead when needed.</span></div>
+            <div class="insight"><strong>Control food cost</strong><span>Watch waste and portion accuracy.</span></div>
+          </div>
+        </div>
+
+        <div class="grid-3" style="margin-top:12px">
+          <div class="card" style="box-shadow:none;background:#eff9f3"><h3 class="panel-title">Recognition</h3><p id="recognitionText">Accuracy is the strongest guest metric.</p></div>
+          <div class="card" style="box-shadow:none;background:#fff7e8"><h3 class="panel-title">Opportunity</h3><p id="opportunityText">Cleanliness is the lowest guest metric.</p></div>
+          <div class="card" style="box-shadow:none"><h3 class="panel-title">Manager notes</h3><div class="note-box" id="boardNotes">No notes entered.</div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
 <script>
-const K='gmAssistantV1';const D={settings:{gmName:'',storeNumber:'',storeLocation:'',osatGoal:50,driveGoal:120,foodGoal:1,districtFoodGoal:.5,laborGoal:40},weeks:[]};let s=JSON.parse(localStorage.getItem(K)||'null')||structuredClone(D);const OSM=[{title:'B.L.A.S.T. Guest Recovery Model',section:'Guest Service',page:5,keys:'blast guest recovery complaint believe listen apologize solve thank',text:'B.L.A.S.T. stands for Believe, Listen, Apologize, Solve, and Thank.'},{title:'Guest experience focus areas',section:'Guest Service',page:4,keys:'speed cleanliness food quality accuracy friendliness serve refresh delight',text:'Serve connects to Speed and Cleanliness; Refresh connects to Food Quality and Accuracy; Delight connects to Friendliness.'},{title:'Roast beef tempering',section:'Roast Beef Preparation',page:8,keys:'roast beef tempering 34 40 48 72 today 4',text:'The July 2026 overview shows 34°F–40°F, 48–72 hours minimum, one inch between roasts, and a maximum hold of Today + 4 days.'}];
-function save(){localStorage.setItem(K,JSON.stringify(s))}function n(v){return v===''||v==null?null:Number(v)}function latest(){return [...s.weeks].sort((a,b)=>b.weekStart.localeCompare(a.weekStart))[0]||null}function prev(){return [...s.weeks].sort((a,b)=>b.weekStart.localeCompare(a.weekStart))[1]||null}function fd(x){return new Date(x+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}function end(x){let d=new Date(x+'T12:00:00');d.setDate(d.getDate()+6);return d.toLocaleDateString(undefined,{month:'short',day:'numeric'})}function esc(x){return String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function show(id){document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('active',x.dataset.v===id));if(id==='trends')draw();scrollTo({top:0,behavior:'smooth'})}document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>show(b.dataset.v));
-function stat(type,val){let goal={osat:s.settings.osatGoal,driveOverall:s.settings.driveGoal,foodVariance:s.settings.foodGoal,laborHoursSaved:s.settings.laborGoal}[type];let met=type==='osat'||type==='laborHoursSaved'?val>=goal:val<=goal;return val==null?['No data','bad']:met?['Goal met','good']:['Needs focus','bad']}
-function priorities(w,p){let a=[];if(w.osat!=null&&w.osat<s.settings.osatGoal){let cats=['accuracy','cleanliness','speed','taste','friendliness'].filter(k=>w[k]!=null).sort((x,y)=>w[x]-w[y]);a.push(`Raise OSAT to ${s.settings.osatGoal}% or higher. Focus first on ${cats.slice(0,2).join(' and ')||'the lowest categories'}.`)}else if(w.osat!=null)a.push(`Maintain OSAT at or above ${s.settings.osatGoal}%.`);if(w.driveOverall!=null&&w.driveOverall>s.settings.driveGoal)a.push(`Drive-thru is ${w.driveOverall-s.settings.driveGoal} seconds over goal. Review the slowest daypart and deployment.`);if(w.foodVariance!=null&&w.foodVariance>s.settings.foodGoal)a.push(`Food variance is above ${s.settings.foodGoal}%. Review waste, portions, transfers, and top loss items.`);else if(w.foodVariance!=null&&w.foodVariance>s.settings.districtFoodGoal)a.push(`Food variance meets company goal but is above the district expectation of ${s.settings.districtFoodGoal}%.`);if(w.laborHoursSaved!=null&&w.laborHoursSaved<s.settings.laborGoal)a.push(`Labor savings are ${s.settings.laborGoal-w.laborHoursSaved} hours short of goal. Protect service while adjusting deployment.`);if(p&&w.surveyCount!=null&&p.surveyCount!=null&&w.surveyCount<p.surveyCount)a.push(`Survey count fell by ${p.surveyCount-w.surveyCount}. Reinforce guest survey communication.`);return a.length?a.slice(0,4):['Review comments and choose one clear team focus.']}
-function render(){let w=latest(),p=prev();document.getElementById('weekTitle').textContent=w?`${fd(w.weekStart)} – ${end(w.weekStart)}`:'No data yet';document.getElementById('summary').textContent=w?'Weekly results are ready for review.':'Enter the completed Saturday–Friday week.';let configs=[['osat','OSAT','%'],['driveOverall','Drive-Thru',' sec'],['foodVariance','Food Variance','%'],['laborHoursSaved','Labor Saved',' hrs']];document.getElementById('cards').innerHTML=w?configs.map(([k,l,u])=>{let z=stat(k,w[k]);let delta=p&&w[k]!=null&&p[k]!=null?(w[k]-p[k]).toFixed(k==='foodVariance'?2:1):null;return `<div class="metric"><div class="eyebrow">${l}</div><div class="value">${w[k]??'—'}${w[k]!=null?u:''}</div><p class="muted">${delta==null?'No prior week':(delta>0?'+':'')+delta+' vs previous week'}</p><span class="status ${z[1]}">${z[0]}</span></div>`}).join(''):'';document.getElementById('priorities').innerHTML=w?priorities(w,p).map(x=>`<li>${esc(x)}</li>`).join(''):'<li>Add weekly data.</li>';let weeks=[...s.weeks].sort((a,b)=>a.weekStart.localeCompare(b.weekStart)).slice(-4),avg=k=>{let v=weeks.map(x=>x[k]).filter(x=>x!=null);return v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1):'—'};document.getElementById('meeting').innerHTML=w?`<p><b>Current OSAT:</b> ${w.osat??'—'}%</p><p><b>4-week OSAT average:</b> ${avg('osat')}%</p><p><b>Drive-thru:</b> ${w.driveOverall??'—'} sec</p><p><b>Food variance:</b> ${w.foodVariance??'—'}%</p><p><b>Weekly sales:</b> ${w.sales!=null?'$'+Number(w.sales).toLocaleString():'—'}</p>`:'<p class="muted">Latest answers will appear here.</p>';renderHistory();renderBoard();loadSettings();draw()}
-function renderHistory(){let a=[...s.weeks].sort((x,y)=>y.weekStart.localeCompare(x.weekStart));document.getElementById('history').innerHTML=a.length?a.map(w=>`<div class="history"><div><b>${fd(w.weekStart)} – ${end(w.weekStart)}</b><div class="muted">OSAT ${w.osat??'—'}% · Drive ${w.driveOverall??'—'} sec · Food ${w.foodVariance??'—'}%</div></div><div><button class="secondary" onclick="editW('${w.id}')">Edit</button> <button class="secondary" onclick="delW('${w.id}')">Delete</button></div></div>`).join(''):'<p class="muted">No weeks saved.</p>'}
-function renderBoard(){let w=latest();if(!w){board.innerHTML='<p>Save a week to generate the board.</p>';return}let cats=['accuracy','cleanliness','speed','taste','friendliness'].filter(k=>w[k]!=null),hi=cats.length?cats.reduce((a,b)=>w[a]>w[b]?a:b):null,lo=cats.length?cats.reduce((a,b)=>w[a]<w[b]?a:b):null;board.innerHTML=`<div class="eyebrow">Weekly team update</div><h2>Store ${esc(s.settings.storeNumber||'—')}</h2><p>${fd(w.weekStart)} – ${end(w.weekStart)}</p><div class="boardgrid"><div class="panel"><h3>Guest Experience</h3><p><b>OSAT:</b> ${w.osat??'—'}% / Goal ${s.settings.osatGoal}%</p><p>Accuracy ${w.accuracy??'—'}% · Cleanliness ${w.cleanliness??'—'}%</p><p>Speed ${w.speed??'—'}% · Taste ${w.taste??'—'}% · Friendliness ${w.friendliness??'—'}%</p></div><div class="panel"><h3>Operations</h3><p><b>Drive-Thru:</b> ${w.driveOverall??'—'} sec / Goal ${s.settings.driveGoal}</p><p><b>Food Variance:</b> ${w.foodVariance??'—'}%</p><p><b>Labor Saved:</b> ${w.laborHoursSaved??'—'} hrs</p><p><b>Weekly Sales:</b> ${w.sales!=null?'$'+Number(w.sales).toLocaleString():'—'}</p></div><div class="panel"><h3>Recognition</h3><p>${hi?hi[0].toUpperCase()+hi.slice(1)+' was the strongest guest category.':'Add recognition.'}</p></div><div class="panel"><h3>Opportunity</h3><p>${lo?lo[0].toUpperCase()+lo.slice(1)+' was the lowest guest category.':'Choose an opportunity.'}</p></div></div><div class="panel" style="margin-top:12px"><h3>This Week's Focus</h3><ol>${priorities(w,prev()).map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div><div class="panel" style="margin-top:12px"><h3>Manager Notes</h3><p>${esc(w.comments||'No notes entered.')}</p></div>`}
-function clearForm(){weekForm.reset();delete weekForm.dataset.id}weekForm.onsubmit=e=>{e.preventDefault();let o=Object.fromEntries(new FormData(weekForm));['sales','surveyCount','osat','accuracy','cleanliness','speed','taste','friendliness','driveOverall','driveLunch','driveAfternoon','driveDinner','driveEvening','foodVariance','laborHoursSaved'].forEach(k=>o[k]=n(o[k]));o.id=weekForm.dataset.id||crypto.randomUUID();let i=s.weeks.findIndex(x=>x.id===o.id);i>=0?s.weeks[i]=o:s.weeks.push(o);save();clearForm();render();show('dash')};function editW(id){let w=s.weeks.find(x=>x.id===id);show('entry');Object.entries(w).forEach(([k,v])=>weekForm.elements[k]&&(weekForm.elements[k].value=v??''));weekForm.dataset.id=id}function delW(id){if(confirm('Delete this week?')){s.weeks=s.weeks.filter(x=>x.id!==id);save();render()}}
-function loadSettings(){Object.entries(s.settings).forEach(([k,v])=>settingsForm.elements[k]&&(settingsForm.elements[k].value=v??''))}settingsForm.onsubmit=e=>{e.preventDefault();let o=Object.fromEntries(new FormData(settingsForm));['osatGoal','driveGoal','foodGoal','districtFoodGoal','laborGoal'].forEach(k=>o[k]=n(o[k]));s.settings=o;save();render();alert('Settings saved.')};
-function draw(){let c=chart,x=c.getContext('2d'),key=metric.value,a=[...s.weeks].sort((m,n)=>m.weekStart.localeCompare(n.weekStart)).filter(w=>w[key]!=null);x.clearRect(0,0,c.width,c.height);x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);if(!a.length){x.fillStyle='#6f6668';x.font='24px system-ui';x.fillText('No data for this metric.',40,70);trendText.textContent='';return}let vals=a.map(w=>w[key]),min=Math.min(...vals),max=Math.max(...vals);if(min===max){min--;max++}let spread=max-min;min-=spread*.12;max+=spread*.12;let L=75,R=35,T=35,B=80;x.strokeStyle='#e5d9d4';x.fillStyle='#6f6668';x.font='16px system-ui';for(let i=0;i<=4;i++){let y=T+(c.height-T-B)*i/4;x.beginPath();x.moveTo(L,y);x.lineTo(c.width-R,y);x.stroke();x.fillText((max-(max-min)*i/4).toFixed(key==='foodVariance'?2:0),12,y+5)}let xf=i=>L+(c.width-L-R)*(a.length===1?.5:i/(a.length-1)),yf=v=>T+(max-v)/(max-min)*(c.height-T-B);x.strokeStyle='#9b1c1f';x.lineWidth=5;x.beginPath();a.forEach((w,i)=>i?x.lineTo(xf(i),yf(w[key])):x.moveTo(xf(i),yf(w[key])));x.stroke();x.fillStyle='#9b1c1f';a.forEach((w,i)=>{x.beginPath();x.arc(xf(i),yf(w[key]),7,0,Math.PI*2);x.fill()});let d=vals.at(-1)-vals[0];trendText.textContent=`Changed ${d>=0?'up':'down'} ${Math.abs(d).toFixed(key==='foodVariance'?2:1)} across saved weeks.`}metric.onchange=draw;
-function searchOSM(){let q=document.getElementById('q').value.toLowerCase(),terms=q.split(/\s+/).filter(x=>x.length>2),a=OSM.map(o=>({o,score:terms.reduce((n,t)=>n+((o.title+' '+o.section+' '+o.keys+' '+o.text).toLowerCase().includes(t)?1:0),0)})).filter(x=>x.score).sort((a,b)=>b.score-a.score);results.innerHTML=a.length?a.map(({o})=>`<div class="result"><div class="eyebrow">${o.section} · Page ${o.page}</div><h3>${o.title}</h3><p>${o.text}</p><p class="muted">Verify against the current official OSM.</p></div>`).join(''):'<p>No result in the starter sample.</p>'}
-function dl(name,text,type){let u=URL.createObjectURL(new Blob([text],{type})),a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u)}function exportCSV(){let h=['weekStart','sales','surveyCount','osat','accuracy','cleanliness','speed','taste','friendliness','driveOverall','driveLunch','driveAfternoon','driveDinner','driveEvening','foodVariance','laborHoursSaved','comments'];dl('gm-assistant.csv',[h.join(','),...s.weeks.map(w=>h.map(k=>'"'+String(w[k]??'').replaceAll('"','""')+'"').join(','))].join('\n'),'text/csv')}function backup(){dl('gm-assistant-backup.json',JSON.stringify(s,null,2),'application/json')}restore.onchange=e=>{let r=new FileReader;r.onload=()=>{try{s=JSON.parse(r.result);save();render();alert('Restored.')}catch{alert('Invalid backup.')}};r.readAsText(e.target.files[0])};
-let prompt;addEventListener('beforeinstallprompt',e=>{e.preventDefault();prompt=e;install.hidden=false});install.onclick=async()=>{if(prompt){prompt.prompt();await prompt.userChoice;prompt=null;install.hidden=true}};if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js'));render();
+const state = {
+  current:{
+    sales:19003, osat:54, drive:113, food:0.15, labor:24,
+    accuracy:64, cleanliness:54, speed:57, taste:58, friendliness:63,
+    notes:""
+  },
+  weekly:{
+    sales:[19814,21534,22573,22422,18418,19003],
+    osat:[49,50,52,53,54,54],
+    drive:[121,118,115,117,114,113],
+    food:[0.05,0.08,0.12,0.10,0.18,0.15],
+    labor:[18,21,26,28,20,24]
+  },
+  monthly:{
+    sales:[81200,84650,82900,80450,83710,37421],
+    osat:[46,47,48,50,52,54],
+    drive:[126,123,119,116,114,113],
+    food:[0.07,0.06,0.09,0.11,0.13,0.15],
+    labor:[76,84,91,88,97,44]
+  },
+  weeklyLabels:["Jul 11","Jul 18","Jul 25","Aug 1","Aug 8","Aug 15"],
+  monthlyLabels:["Mar","Apr","May","Jun","Jul","Aug"]
+};
+
+const meta = {
+  sales:{name:"Sales",format:v=>"$"+Math.round(v).toLocaleString(), lower:false},
+  osat:{name:"OSAT",format:v=>Math.round(v)+"%", lower:false},
+  drive:{name:"Drive-Thru",format:v=>`${Math.floor(v/60)}:${Math.round(v%60).toString().padStart(2,"0")}`, lower:true},
+  food:{name:"Food Variance",format:v=>Number(v).toFixed(2)+"%", lower:true},
+  labor:{name:"Labor Saved",format:v=>Math.round(v)+" hrs", lower:false}
+};
+
+document.querySelectorAll(".nav button").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.getElementById(btn.dataset.page).classList.add("active");
+    if(btn.dataset.page==="trends") renderTrends();
+  });
+});
+
+function driveFormat(sec){
+  return `${Math.floor(sec/60)}:${Math.round(sec%60).toString().padStart(2,"0")}`;
+}
+
+function updateLive(){
+  const map = {
+    sales:"$"+Math.round(state.current.sales).toLocaleString(),
+    osat:Math.round(state.current.osat)+"%",
+    drive:driveFormat(state.current.drive),
+    food:Number(state.current.food).toFixed(2)+"%",
+    labor:Math.round(state.current.labor)+" hrs"
+  };
+  Object.keys(map).forEach(k=>{
+    document.querySelectorAll(`[data-live="${k}"]`).forEach(el=>el.textContent=map[k]);
+  });
+
+  const guest = [
+    ["Accuracy",state.current.accuracy],
+    ["Cleanliness",state.current.cleanliness],
+    ["Speed",state.current.speed],
+    ["Taste",state.current.taste],
+    ["Friendliness",state.current.friendliness]
+  ];
+  document.getElementById("commGuest").innerHTML = guest.map(([n,v])=>`
+    <div class="metric-row">
+      <div class="name">${n}</div>
+      <div class="bar"><div class="fill" style="width:${Math.max(0,Math.min(100,v))}%"></div></div>
+      <div class="num">${v}%</div>
+    </div>`).join("");
+
+  const best=[...guest].sort((a,b)=>b[1]-a[1])[0];
+  const worst=[...guest].sort((a,b)=>a[1]-b[1])[0];
+  document.getElementById("recognitionText").textContent=`${best[0]} is the strongest guest metric at ${best[1]}%.`;
+  document.getElementById("opportunityText").textContent=`${worst[0]} is the lowest guest metric at ${worst[1]}%.`;
+  document.getElementById("boardNotes").textContent=state.current.notes.trim() || "No notes entered.";
+}
+
+document.getElementById("saveWeek").addEventListener("click",()=>{
+  state.current.sales=+document.getElementById("inSales").value||0;
+  state.current.osat=+document.getElementById("inOsat").value||0;
+  state.current.drive=+document.getElementById("inDrive").value||0;
+  state.current.food=+document.getElementById("inFood").value||0;
+  state.current.labor=+document.getElementById("inLabor").value||0;
+  state.current.accuracy=+document.getElementById("inAccuracy").value||0;
+  state.current.cleanliness=+document.getElementById("inCleanliness").value||0;
+  state.current.speed=+document.getElementById("inSpeed").value||0;
+  state.current.taste=+document.getElementById("inTaste").value||0;
+  state.current.friendliness=+document.getElementById("inFriendliness").value||0;
+  state.current.notes=document.getElementById("inNotes").value||"";
+
+  state.weekly.sales[state.weekly.sales.length-1]=state.current.sales;
+  state.weekly.osat[state.weekly.osat.length-1]=state.current.osat;
+  state.weekly.drive[state.weekly.drive.length-1]=state.current.drive;
+  state.weekly.food[state.weekly.food.length-1]=state.current.food;
+  state.weekly.labor[state.weekly.labor.length-1]=state.current.labor;
+
+  updateLive();
+  const s=document.getElementById("saveStatus");
+  s.style.display="block";
+  setTimeout(()=>s.style.display="none",2200);
+});
+
+const canvas=document.getElementById("trendChart");
+const ctx=canvas.getContext("2d");
+
+function drawChart(labels,values,fmt){
+  const ratio=window.devicePixelRatio||1;
+  const rect=canvas.getBoundingClientRect();
+  canvas.width=rect.width*ratio;
+  canvas.height=rect.height*ratio;
+  ctx.setTransform(ratio,0,0,ratio,0,0);
+
+  const W=rect.width,H=rect.height;
+  const pad={l:58,r:20,t:26,b:42};
+  const plotW=W-pad.l-pad.r,plotH=H-pad.t-pad.b;
+  const minV=Math.min(...values),maxV=Math.max(...values);
+  const spread=Math.max(maxV-minV,1);
+  const lo=minV-spread*.18,hi=maxV+spread*.18;
+
+  ctx.clearRect(0,0,W,H);
+  ctx.font="12px system-ui";
+  ctx.fillStyle="#766f68";
+  ctx.strokeStyle="#e7e0d8";
+  ctx.lineWidth=1;
+
+  for(let i=0;i<=4;i++){
+    const y=pad.t+(plotH/4)*i;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    const val=hi-(hi-lo)*(i/4);
+    ctx.fillText(fmt(val),6,y+4);
+  }
+
+  const pts=values.map((v,i)=>({
+    x:pad.l+(plotW/(values.length-1))*i,
+    y:pad.t+((hi-v)/(hi-lo))*plotH
+  }));
+
+  const grad=ctx.createLinearGradient(0,pad.t,0,H-pad.b);
+  grad.addColorStop(0,"rgba(159,29,34,.18)");
+  grad.addColorStop(1,"rgba(159,29,34,.02)");
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x,H-pad.b);
+  pts.forEach(p=>ctx.lineTo(p.x,p.y));
+  ctx.lineTo(pts[pts.length-1].x,H-pad.b);
+  ctx.closePath();
+  ctx.fillStyle=grad;ctx.fill();
+
+  ctx.beginPath();
+  pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+  ctx.strokeStyle="#9f1d22";ctx.lineWidth=4;ctx.lineJoin="round";ctx.lineCap="round";ctx.stroke();
+
+  pts.forEach((p,i)=>{
+    ctx.beginPath();ctx.arc(p.x,p.y,5.5,0,Math.PI*2);ctx.fillStyle="#9f1d22";ctx.fill();
+    ctx.fillStyle="#6f675f";ctx.textAlign="center";ctx.fillText(labels[i],p.x,H-15);
+  });
+  ctx.textAlign="left";
+}
+
+function renderTrends(){
+  const key=document.getElementById("metricSelect").value;
+  const summary=document.getElementById("summarySelect").value;
+  const count=+document.getElementById("rangeSelect").value;
+  const m=meta[key];
+  const source=[...state[summary][key]];
+  const labels=[...(summary==="weekly"?state.weeklyLabels:state.monthlyLabels)];
+  const values=source.slice(-count);
+  const shownLabels=labels.slice(-count);
+
+  const first=values[0],cur=values[values.length-1];
+  const avg=values.reduce((a,b)=>a+b,0)/values.length;
+  const best=m.lower?Math.min(...values):Math.max(...values);
+  const bestIndex=values.indexOf(best);
+  const change=cur-first;
+
+  document.getElementById("k1label").textContent=summary==="weekly"?"Current Week":"Current Month";
+  document.getElementById("k3label").textContent=summary==="weekly"?"Weekly Average":"Monthly Average";
+  document.getElementById("k4label").textContent=summary==="weekly"?"Best Week":"Best Month";
+  document.getElementById("k1").textContent=m.format(cur);
+  document.getElementById("k3").textContent=m.format(avg);
+  document.getElementById("k4").textContent=m.format(best);
+  document.getElementById("k4sub").textContent=shownLabels[bestIndex];
+  document.getElementById("k5").textContent=values.length;
+
+  let ch;
+  if(key==="sales") ch=(change<0?"-$":"+$")+Math.abs(Math.round(change)).toLocaleString();
+  else if(key==="drive") ch=(change>=0?"+":"-")+Math.abs(Math.round(change))+" sec";
+  else if(key==="osat") ch=(change>=0?"+":"")+Math.round(change)+" pts";
+  else if(key==="food") ch=(change>=0?"+":"")+change.toFixed(2)+" pts";
+  else ch=(change>=0?"+":"")+Math.round(change)+" hrs";
+  document.getElementById("k2").textContent=ch;
+
+  const good=m.lower?change<0:change>0;
+  const cc=document.getElementById("changeCard");
+  cc.className="kpi "+(change===0?"warn":good?"good":"bad");
+
+  document.getElementById("chartTitle").textContent=`${summary==="weekly"?"Weekly":"Monthly"} ${m.name} trend`;
+  document.getElementById("chartSub").textContent=`${m.name} summarized by ${summary==="weekly"?"week":"month"}`;
+
+  document.getElementById("trendTable").innerHTML=values.map((v,i)=>{
+    const d=i===0?null:v-values[i-1];
+    let ds="—";
+    if(d!==null){
+      if(key==="sales") ds=(d<0?"-$":"+$")+Math.abs(Math.round(d)).toLocaleString();
+      else if(key==="drive") ds=(d>=0?"+":"-")+Math.abs(Math.round(d))+" sec";
+      else if(key==="osat") ds=(d>=0?"+":"")+Math.round(d)+" pts";
+      else if(key==="food") ds=(d>=0?"+":"")+d.toFixed(2)+" pts";
+      else ds=(d>=0?"+":"")+Math.round(d)+" hrs";
+    }
+    return `<tr><td>${shownLabels[i]}</td><td><strong>${m.format(v)}</strong></td><td>${ds}</td></tr>`;
+  }).join("");
+
+  const direction = good ? "improved" : change===0 ? "held steady" : "moved in the wrong direction";
+  const periodWord=summary==="weekly"?"week":"month";
+  document.getElementById("insightWrap").innerHTML=`
+    <div class="insight"><strong>Current direction</strong><span>${m.name} ${direction} across the selected ${periodWord}s.</span></div>
+    <div class="insight"><strong>Best period</strong><span>${shownLabels[bestIndex]} was the strongest ${periodWord} at ${m.format(best)}.</span></div>
+    <div class="insight"><strong>Manager check</strong><span>Compare the strongest and weakest periods for staffing, traffic, execution, promotions, waste, and daypart differences.</span></div>`;
+
+  drawChart(shownLabels,values,m.format);
+}
+
+["metricSelect","summarySelect","rangeSelect"].forEach(id=>{
+  document.getElementById(id).addEventListener("change",renderTrends);
+});
+window.addEventListener("resize",()=>{
+  if(document.getElementById("trends").classList.contains("active")) renderTrends();
+});
+
+updateLive();
 </script>
-</body></html>
+</body>
+</html>
