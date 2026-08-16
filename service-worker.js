@@ -1,15 +1,18 @@
-const CACHE_NAME = "gm-assistant-v6";
+const CACHE_NAME = "gm-assistant-v7";
 
 const APP_SHELL = [
   "./",
   "./manifest.webmanifest",
   "./icon.svg",
-  "./history-fix.js"
+  "./history-fix.js",
+  "./week-ending-fix.js"
 ];
 
 function injectHistoryFix(html) {
-  if (html.includes('history-fix.js')) return html;
-  return html.replace('</body>', '<script src="history-fix.js"></script>\n</body>');
+  let out = html;
+  if (!out.includes('history-fix.js')) out = out.replace('</body>', '<script src="history-fix.js"></script>\n</body>');
+  if (!out.includes('week-ending-fix.js')) out = out.replace('</body>', '<script src="week-ending-fix.js"></script>\n</body>');
+  return out;
 }
 
 function patchedHtmlResponse(html, sourceResponse) {
