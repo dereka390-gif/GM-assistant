@@ -35,6 +35,13 @@
       return {access_token:p.get('access_token'),refresh_token:p.get('refresh_token')||'',token_type:p.get('token_type')||'bearer',expires_in:Number(p.get('expires_in')||3600)};
     }catch{return null}
   }
+  function recoveryTokenHashFromUrl(){
+    try{
+      const p=new URLSearchParams(location.search);
+      if(p.get('type')!=='recovery'||!p.get('token_hash'))return null;
+      return p.get('token_hash');
+    }catch{return null}
+  }
 
   function renderResetPassword(session){
     document.getElementById('gmAuthGate')?.remove();
@@ -52,10 +59,31 @@
         const data=await r.json().catch(()=>({}));
         if(!r.ok)throw new Error(data.msg||data.message||data.error_description||'Unable to update password');
         saveSession(session);
-        try{history.replaceState(null,'',location.pathname+location.search)}catch{}
+        try{history.replaceState(null,'',location.pathname)}catch{}
         msg.textContent='Password updated. Opening GM Assistant…';
         setTimeout(()=>location.reload(),600);
       }catch(err){msg.textContent=err.message||'Unable to update password.';}
+    };
+  }
+
+  function renderRecoveryConfirm(tokenHash){
+    document.getElementById('gmAuthGate')?.remove();
+    const gate=document.createElement('div');gate.id='gmAuthGate';
+    gate.innerHTML=`<div class="gate-card"><div class="brand">Restaurant operations</div><h1>Reset your password</h1><p>Your reset request is ready. For security, the one-time reset token is not used until you tap the button below.</p><div id="gmGateMsg"></div><div class="actions"><button type="button" class="primary" id="gmContinueReset">Continue Password Reset</button><button type="button" class="secondary" id="gmCancelReset">Cancel</button></div></div>`;
+    document.body.appendChild(gate);
+    const msg=gate.querySelector('#gmGateMsg');
+    gate.querySelector('#gmCancelReset').onclick=()=>{try{history.replaceState(null,'',location.pathname)}catch{};renderGate();};
+    gate.querySelector('#gmContinueReset').onclick=async()=>{
+      msg.textContent='Verifying reset request…';
+      gate.querySelectorAll('button').forEach(b=>b.disabled=true);
+      try{
+        const r=await fetch(`${SUPABASE_URL}/auth/v1/verify`,{method:'POST',headers:headers(),body:JSON.stringify({token_hash:tokenHash,type:'recovery'})});
+        const data=await r.json().catch(()=>({}));
+        if(!r.ok||!data.access_token)throw new Error(data.msg||data.message||data.error_description||'This reset request is invalid or expired. Request a new email and try again.');
+        saveSession(data);
+        try{history.replaceState(null,'',location.pathname)}catch{}
+        renderResetPassword(data);
+      }catch(err){msg.textContent=err.message||'Unable to verify reset request.';gate.querySelectorAll('button').forEach(b=>b.disabled=false);}
     };
   }
 
@@ -88,7 +116,7 @@
         const r=await fetch(`${SUPABASE_URL}/auth/v1/recover?redirect_to=${encodeURIComponent(redirectTo)}`,{method:'POST',headers:headers(),body:JSON.stringify({email:e})});
         const data=await r.json().catch(()=>({}));
         if(!r.ok)throw new Error(data.msg||data.message||data.error_description||'Unable to send reset email');
-        msg.textContent='Reset email sent. Check your inbox and tap the link to choose a new password.';
+        msg.textContent='Reset email sent. Use the newest email only.';
       }catch(err){msg.textContent=err.message||'Unable to send reset email.';}
     };
     gate.querySelector('#gmGateIn').onclick=()=>auth(false);
@@ -97,6 +125,8 @@
   }
 
   async function validate(){
+    const tokenHash=recoveryTokenHashFromUrl();
+    if(tokenHash){renderRecoveryConfirm(tokenHash);return;}
     const recovered=recoverySessionFromUrl();
     if(recovered){saveSession(recovered);renderResetPassword(recovered);return;}
     let session=readSession();
