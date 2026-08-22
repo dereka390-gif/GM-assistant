@@ -16,6 +16,7 @@
     #gmAuthGate .actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}
     #gmAuthGate button{border-radius:12px;padding:12px 14px;font-weight:900;border:1px solid #e7ddd8;font:inherit;cursor:pointer}
     #gmAuthGate .primary{background:#8f171d;color:#fff;border-color:#8f171d}#gmAuthGate .secondary{background:#fff;color:#211c1d}
+    #gmAuthGate .forgot{display:inline-block;border:0;background:transparent;color:#8f171d;padding:8px 0 0;text-decoration:underline;font-weight:800;cursor:pointer}
     #gmGateMsg{min-height:20px;margin-top:10px;font-size:13px;color:#756b6d}
     #gmGateStatus{text-align:center;font-weight:800;color:#756b6d}
     @media(max-width:480px){#gmAuthGate .actions{grid-template-columns:1fr}#gmAuthGate .gate-card{padding:20px}}
@@ -27,11 +28,41 @@
   function saveSession(v){if(v)localStorage.setItem(SESSION_KEY,JSON.stringify(v));else localStorage.removeItem(SESSION_KEY)}
   function headers(token){return {apikey:SUPABASE_KEY,'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})}}
   function removeGate(){document.documentElement.classList.remove('gm-auth-locked');document.getElementById('gmAuthGate')?.remove()}
+  function recoverySessionFromUrl(){
+    try{
+      const p=new URLSearchParams(location.hash.replace(/^#/,''));
+      if(p.get('type')!=='recovery'||!p.get('access_token'))return null;
+      return {access_token:p.get('access_token'),refresh_token:p.get('refresh_token')||'',token_type:p.get('token_type')||'bearer',expires_in:Number(p.get('expires_in')||3600)};
+    }catch{return null}
+  }
+
+  function renderResetPassword(session){
+    document.getElementById('gmAuthGate')?.remove();
+    const gate=document.createElement('div');gate.id='gmAuthGate';
+    gate.innerHTML=`<div class="gate-card"><div class="brand">Restaurant operations</div><h1>Create a new password</h1><p>Enter and confirm your new GM Assistant password.</p><label>New password<input id="gmNewPass" type="password" autocomplete="new-password"></label><label>Confirm password<input id="gmNewPass2" type="password" autocomplete="new-password"></label><div id="gmGateMsg"></div><div class="actions"><button type="button" class="primary" id="gmSavePass">Update Password</button></div></div>`;
+    document.body.appendChild(gate);
+    const msg=gate.querySelector('#gmGateMsg');
+    gate.querySelector('#gmSavePass').onclick=async()=>{
+      const p1=gate.querySelector('#gmNewPass').value,p2=gate.querySelector('#gmNewPass2').value;
+      if(p1.length<6){msg.textContent='Use a password of at least 6 characters.';return;}
+      if(p1!==p2){msg.textContent='The passwords do not match.';return;}
+      msg.textContent='Updating password…';
+      try{
+        const r=await fetch(`${SUPABASE_URL}/auth/v1/user`,{method:'PUT',headers:headers(session.access_token),body:JSON.stringify({password:p1})});
+        const data=await r.json().catch(()=>({}));
+        if(!r.ok)throw new Error(data.msg||data.message||data.error_description||'Unable to update password');
+        saveSession(session);
+        try{history.replaceState(null,'',location.pathname+location.search)}catch{}
+        msg.textContent='Password updated. Opening GM Assistant…';
+        setTimeout(()=>location.reload(),600);
+      }catch(err){msg.textContent=err.message||'Unable to update password.';}
+    };
+  }
 
   function renderGate(message=''){
     document.getElementById('gmAuthGate')?.remove();
     const gate=document.createElement('div');gate.id='gmAuthGate';
-    gate.innerHTML=`<div class="gate-card"><div class="brand">Restaurant operations</div><h1>GM Assistant</h1><p>This app is private. Sign in to access your dashboard, restaurant data, Communication Studio, AI tools, and OSM reference.</p><label>Email<input id="gmGateEmail" type="email" autocomplete="email" inputmode="email"></label><label>Password<input id="gmGatePass" type="password" autocomplete="current-password"></label><div id="gmGateMsg">${message}</div><div class="actions"><button type="button" class="primary" id="gmGateIn">Sign In</button><button type="button" class="secondary" id="gmGateUp">Create Account</button></div></div>`;
+    gate.innerHTML=`<div class="gate-card"><div class="brand">Restaurant operations</div><h1>GM Assistant</h1><p>This app is private. Sign in to access your dashboard, restaurant data, Communication Studio, AI tools, and OSM reference.</p><label>Email<input id="gmGateEmail" type="email" autocomplete="email" inputmode="email"></label><label>Password<input id="gmGatePass" type="password" autocomplete="current-password"></label><button type="button" class="forgot" id="gmGateForgot">Forgot password?</button><div id="gmGateMsg">${message}</div><div class="actions"><button type="button" class="primary" id="gmGateIn">Sign In</button><button type="button" class="secondary" id="gmGateUp">Create Account</button></div></div>`;
     document.body.appendChild(gate);
     const email=gate.querySelector('#gmGateEmail'),pass=gate.querySelector('#gmGatePass'),msg=gate.querySelector('#gmGateMsg');
     async function auth(create){
@@ -48,12 +79,26 @@
         saveSession(data);location.reload();
       }catch(err){msg.textContent=err.message||'Authentication failed.';}finally{gate.querySelectorAll('button').forEach(b=>b.disabled=false);}
     }
+    gate.querySelector('#gmGateForgot').onclick=async()=>{
+      const e=email.value.trim();
+      if(!e||!e.includes('@')){msg.textContent='Enter your email address first.';return;}
+      msg.textContent='Sending password reset email…';
+      try{
+        const redirectTo=location.origin+location.pathname;
+        const r=await fetch(`${SUPABASE_URL}/auth/v1/recover?redirect_to=${encodeURIComponent(redirectTo)}`,{method:'POST',headers:headers(),body:JSON.stringify({email:e})});
+        const data=await r.json().catch(()=>({}));
+        if(!r.ok)throw new Error(data.msg||data.message||data.error_description||'Unable to send reset email');
+        msg.textContent='Reset email sent. Check your inbox and tap the link to choose a new password.';
+      }catch(err){msg.textContent=err.message||'Unable to send reset email.';}
+    };
     gate.querySelector('#gmGateIn').onclick=()=>auth(false);
     gate.querySelector('#gmGateUp').onclick=()=>auth(true);
     pass.addEventListener('keydown',e=>{if(e.key==='Enter')auth(false)});
   }
 
   async function validate(){
+    const recovered=recoverySessionFromUrl();
+    if(recovered){saveSession(recovered);renderResetPassword(recovered);return;}
     let session=readSession();
     if(!session?.access_token){renderGate();return;}
     try{
