@@ -17,6 +17,7 @@
     #gmAuthGate button{border-radius:12px;padding:12px 14px;font-weight:900;border:1px solid #e7ddd8;font:inherit;cursor:pointer}
     #gmAuthGate .primary{background:#8f171d;color:#fff;border-color:#8f171d}#gmAuthGate .secondary{background:#fff;color:#211c1d}
     #gmAuthGate .forgot{display:inline-block;border:0;background:transparent;color:#8f171d;padding:8px 0 0;text-decoration:underline;font-weight:800;cursor:pointer}
+    #gmAuthGate .emergency{display:inline-block;border:0;background:transparent;color:#756b6d;padding:6px 0 0;text-decoration:underline;font-weight:800;cursor:pointer}
     #gmGateMsg{min-height:20px;margin-top:10px;font-size:13px;color:#756b6d}
     #gmGateStatus{text-align:center;font-weight:800;color:#756b6d}
     @media(max-width:480px){#gmAuthGate .actions{grid-template-columns:1fr}#gmAuthGate .gate-card{padding:20px}}
@@ -87,10 +88,38 @@
     };
   }
 
+  function renderEmergencyReset(){
+    document.getElementById('gmAuthGate')?.remove();
+    const gate=document.createElement('div');gate.id='gmAuthGate';
+    gate.innerHTML=`<div class="gate-card"><div class="brand">Restaurant operations</div><h1>Emergency account reset</h1><p>Use this one-time recovery option for the Derek account. Enter the recovery code provided in ChatGPT and choose a new password.</p><label>Email<input id="gmEmergencyEmail" type="email" autocomplete="email" value="derek.a390@gmail.com"></label><label>Recovery code<input id="gmEmergencyCode" type="text" autocomplete="one-time-code"></label><label>New password<input id="gmEmergencyPass" type="password" autocomplete="new-password"></label><label>Confirm password<input id="gmEmergencyPass2" type="password" autocomplete="new-password"></label><div id="gmGateMsg"></div><div class="actions"><button type="button" class="primary" id="gmEmergencyGo">Reset Password</button><button type="button" class="secondary" id="gmEmergencyCancel">Cancel</button></div></div>`;
+    document.body.appendChild(gate);
+    const msg=gate.querySelector('#gmGateMsg');
+    gate.querySelector('#gmEmergencyCancel').onclick=()=>renderGate();
+    gate.querySelector('#gmEmergencyGo').onclick=async()=>{
+      const email=gate.querySelector('#gmEmergencyEmail').value.trim();
+      const recoveryCode=gate.querySelector('#gmEmergencyCode').value.trim();
+      const p1=gate.querySelector('#gmEmergencyPass').value;
+      const p2=gate.querySelector('#gmEmergencyPass2').value;
+      if(!email||!recoveryCode){msg.textContent='Enter the email and recovery code.';return;}
+      if(p1.length<8){msg.textContent='Use a password of at least 8 characters.';return;}
+      if(p1!==p2){msg.textContent='The passwords do not match.';return;}
+      msg.textContent='Resetting password…';
+      gate.querySelectorAll('button').forEach(b=>b.disabled=true);
+      try{
+        const r=await fetch(`${SUPABASE_URL}/functions/v1/gm-emergency-reset`,{method:'POST',headers:headers(),body:JSON.stringify({email,recoveryCode,newPassword:p1})});
+        const data=await r.json().catch(()=>({}));
+        if(!r.ok)throw new Error(data.error||'Unable to reset password.');
+        saveSession(null);
+        msg.textContent='Password reset successfully. Returning to sign in…';
+        setTimeout(()=>renderGate('Password reset successfully. Sign in with your new password.'),800);
+      }catch(err){msg.textContent=err.message||'Unable to reset password.';gate.querySelectorAll('button').forEach(b=>b.disabled=false);}
+    };
+  }
+
   function renderGate(message=''){
     document.getElementById('gmAuthGate')?.remove();
     const gate=document.createElement('div');gate.id='gmAuthGate';
-    gate.innerHTML=`<div class="gate-card"><div class="brand">Restaurant operations</div><h1>GM Assistant</h1><p>This app is private. Sign in to access your dashboard, restaurant data, Communication Studio, AI tools, and OSM reference.</p><label>Email<input id="gmGateEmail" type="email" autocomplete="email" inputmode="email"></label><label>Password<input id="gmGatePass" type="password" autocomplete="current-password"></label><button type="button" class="forgot" id="gmGateForgot">Forgot password?</button><div id="gmGateMsg">${message}</div><div class="actions"><button type="button" class="primary" id="gmGateIn">Sign In</button><button type="button" class="secondary" id="gmGateUp">Create Account</button></div></div>`;
+    gate.innerHTML=`<div class="gate-card"><div class="brand">Restaurant operations</div><h1>GM Assistant</h1><p>This app is private. Sign in to access your dashboard, restaurant data, Communication Studio, AI tools, and OSM reference.</p><label>Email<input id="gmGateEmail" type="email" autocomplete="email" inputmode="email"></label><label>Password<input id="gmGatePass" type="password" autocomplete="current-password"></label><button type="button" class="forgot" id="gmGateForgot">Forgot password?</button><br><button type="button" class="emergency" id="gmGateEmergency">Emergency reset</button><div id="gmGateMsg">${message}</div><div class="actions"><button type="button" class="primary" id="gmGateIn">Sign In</button><button type="button" class="secondary" id="gmGateUp">Create Account</button></div></div>`;
     document.body.appendChild(gate);
     const email=gate.querySelector('#gmGateEmail'),pass=gate.querySelector('#gmGatePass'),msg=gate.querySelector('#gmGateMsg');
     async function auth(create){
@@ -119,6 +148,7 @@
         msg.textContent='Reset email sent. Use the newest email only.';
       }catch(err){msg.textContent=err.message||'Unable to send reset email.';}
     };
+    gate.querySelector('#gmGateEmergency').onclick=()=>renderEmergencyReset();
     gate.querySelector('#gmGateIn').onclick=()=>auth(false);
     gate.querySelector('#gmGateUp').onclick=()=>auth(true);
     pass.addEventListener('keydown',e=>{if(e.key==='Enter')auth(false)});
