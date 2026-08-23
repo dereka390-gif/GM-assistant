@@ -1,6 +1,7 @@
 // Tap-to-edit text controls for Communication poster objects
 (() => {
-  const EDITABLE = '.poster-big,.poster-callout,.poster-box,.poster-focus,.poster-footer,[data-custom-type="text"],[data-custom-type="box"]';
+  // Only include cards whose text can be edited without destroying nested layout markup.
+  const EDITABLE = '.poster-big,.poster-callout,.poster-box,.poster-footer,.goal-card,.hero-card,[data-custom-type="text"],[data-custom-type="box"]';
   let active=null;
 
   function boot(){
@@ -31,7 +32,7 @@
         <label>Text color<input id="editTextColor" type="color" value="#171313"></label>
         <label>Font size<input id="editFontSize" type="range" min="10" max="80" value="22"></label>
       </div>
-      <div class="tap-edit-note">Tap a box once to edit its text. Hold and drag to move it. Metric cards keep their label/value structure.</div>`;
+      <div class="tap-edit-note">Tap a supported box once to edit its text. Hold and drag to move it. Structured cards keep their label/value layout.</div>`;
     host.appendChild(editor);
 
     const primary=document.getElementById('editPrimary'), label=document.getElementById('editLabel'), value=document.getElementById('editValue');
@@ -40,8 +41,8 @@
 
     function hex(rgb){const m=String(rgb).match(/\d+/g);if(!m||m.length<3)return'#171313';return '#'+m.slice(0,3).map(x=>(+x).toString(16).padStart(2,'0')).join('')}
     function parts(el){
-      const l=el.querySelector('.label');
-      const v=el.querySelector('.value,.big-num,.poster-big .big-num');
+      const l=el.querySelector('.label,.goal-label,.hero-label');
+      const v=el.querySelector('.value,.big-num,.goal-num,.hero-num');
       return {label:l,value:v};
     }
     function open(el){
@@ -51,7 +52,6 @@
       if(structured){label.value=p.label?.textContent?.trim()||'';value.value=p.value?.textContent?.trim()||'';}
       else primary.value=el.textContent?.trim()||'';
       const cs=getComputedStyle(el);color.value=hex(cs.color);font.value=parseInt(cs.fontSize)||22;
-      editor.scrollIntoView({block:'nearest',behavior:'smooth'});
     }
     poster.addEventListener('click',e=>{
       const el=e.target.closest(EDITABLE); if(!el||!poster.contains(el)) return;
