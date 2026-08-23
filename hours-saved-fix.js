@@ -4,6 +4,8 @@
   const originalSubscores = subscores;
   const originalPriorities = priorities;
   const originalRenderDashboard = renderDashboard;
+  const originalRollupWeeks = rollupWeeks;
+  const originalSeries = series;
 
   function monthlyLaborGoal() {
     const goal = Number(s.settings.laborGoal);
@@ -27,6 +29,51 @@
       s.settings.laborGoal = savedGoal;
     }
   }
+
+  // One labor value per week should count toward the month. If the same
+  // week was saved more than once, keep only the latest saved record so a
+  // duplicate entry cannot inflate the monthly total (for example 40 -> 72).
+  function uniqueWeeks(ws) {
+    const byWeek = new Map();
+    (ws || []).forEach(w => {
+      if (w && w.weekStart) byWeek.set(w.weekStart, w);
+    });
+    return [...byWeek.values()];
+  }
+
+  function laborTotal(ws) {
+    return uniqueWeeks(ws)
+      .map(w => Number(w.laborHoursSaved))
+      .filter(Number.isFinite)
+      .reduce((sum, v) => sum + v, 0);
+  }
+
+  rollupWeeks = function(ws) {
+    const out = originalRollupWeeks(ws);
+    const vals = uniqueWeeks(ws)
+      .map(w => Number(w.laborHoursSaved))
+      .filter(Number.isFinite);
+    out.laborHoursSaved = vals.length ? vals.reduce((a,b)=>a+b,0) : null;
+    return out;
+  };
+
+  series = function(k, mode) {
+    if (k !== 'laborHoursSaved' || mode !== 'monthly') {
+      return originalSeries(k, mode);
+    }
+
+    const groups = {};
+    sorted().forEach(w => {
+      if (w?.weekStart) (groups[monthKey(w.weekStart)] ??= []).push(w);
+    });
+
+    return Object.entries(groups)
+      .sort(([a],[b]) => a.localeCompare(b))
+      .map(([mk, ws]) => ({
+        label: monthLabel(mk).replace(' ', ' ’'),
+        value: laborTotal(ws)
+      }));
+  };
 
   statusFor = function(k, v) {
     if (k !== 'laborHoursSaved') return originalStatusFor(k, v);
