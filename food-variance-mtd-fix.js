@@ -3,28 +3,52 @@
   const originalSeries = series;
   const originalRenderDashboard = renderDashboard;
 
-  function latestFoodVariance(ws) {
+  // These are tracking/snapshot metrics. Each new weekly entry replaces the
+  // prior displayed value for the month instead of being averaged with it.
+  const TRACKED_LATEST = new Set([
+    'osat',
+    'accuracy',
+    'cleanliness',
+    'speed',
+    'taste',
+    'friendliness',
+    'driveOverall',
+    'driveMorning',
+    'driveLunch',
+    'driveAfternoon',
+    'driveDinner',
+    'driveEvening',
+    'foodVariance'
+  ]);
+
+  function latestValue(ws, key) {
     return [...ws]
-      .filter(w => w && w.weekStart && w.foodVariance != null && Number.isFinite(Number(w.foodVariance)))
+      .filter(w => w && w.weekStart && w[key] != null && Number.isFinite(Number(w[key])))
       .sort((a, b) => a.weekStart.localeCompare(b.weekStart))
-      .map(w => Number(w.foodVariance))
+      .map(w => Number(w[key]))
       .at(-1) ?? null;
   }
 
   rollupWeeks = function(ws) {
     const out = originalRollupWeeks(ws);
-    out.foodVariance = latestFoodVariance(ws);
+
+    TRACKED_LATEST.forEach(key => {
+      out[key] = latestValue(ws, key);
+    });
+
+    // True weekly totals still accumulate for the selected month:
+    // sales, surveyCount, and laborHoursSaved.
     return out;
   };
 
   series = function(k, mode) {
-    if (k !== 'foodVariance' || mode !== 'monthly') {
+    if (mode !== 'monthly' || !TRACKED_LATEST.has(k)) {
       return originalSeries(k, mode);
     }
 
     const groups = {};
     sorted().forEach(w => {
-      if (w.foodVariance != null && Number.isFinite(Number(w.foodVariance))) {
+      if (w[k] != null && Number.isFinite(Number(w[k]))) {
         (groups[monthKey(w.weekStart)] ??= []).push(w);
       }
     });
@@ -33,22 +57,22 @@
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([mk, ws]) => ({
         label: monthLabel(mk).replace(' ', ' ’'),
-        value: latestFoodVariance(ws)
+        value: latestValue(ws, k)
       }))
       .filter(p => p.value != null);
   };
 
-  function updateFoodVarianceLabel() {
-    const input = weekForm?.elements?.foodVariance;
-    const label = input?.closest('label');
-    if (label?.firstChild) label.firstChild.textContent = 'Food variance MTD (%)';
+  function updateTrackingLabels() {
+    const foodInput = weekForm?.elements?.foodVariance;
+    const foodLabel = foodInput?.closest('label');
+    if (foodLabel?.firstChild) foodLabel.firstChild.textContent = 'Food variance MTD (%)';
   }
 
   renderDashboard = function() {
     originalRenderDashboard();
-    updateFoodVarianceLabel();
+    updateTrackingLabels();
   };
 
-  updateFoodVarianceLabel();
+  updateTrackingLabels();
   renderDashboard();
 })();
