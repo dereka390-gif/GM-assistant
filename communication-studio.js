@@ -1,163 +1,76 @@
-// GM Assistant Communication Studio
+// GM Assistant Communication Studio — dark communication-board template
 (() => {
   const comm = document.getElementById('comm');
   if (!comm) return;
 
-  const styles = `
+  const css = `
   <style id="commStudioStyles">
-    .comm-studio{display:grid;grid-template-columns:minmax(280px,.8fr) minmax(0,1.25fr);gap:16px;align-items:start}
-    .comm-tools{position:sticky;top:78px}.comm-tools .card{margin-bottom:12px}
-    .comm-style-row{display:flex;gap:8px;flex-wrap:wrap}.comm-style-row button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 11px;font-weight:800}.comm-style-row button.active{background:var(--red);color:#fff;border-color:var(--red)}
-    .poster-shell{background:#ddd3ca;border-radius:18px;padding:14px;overflow:auto}.team-poster{--accent:#c51f2d;--accent2:#f0b323;position:relative;aspect-ratio:8.5/11;background:#fffdf8;border:1px solid #cfc3b8;box-shadow:0 18px 50px #0002;overflow:hidden;margin:auto;max-width:760px;display:flex;flex-direction:column;color:#181515}
-    .team-poster .poster-top{padding:26px 28px 18px;background:linear-gradient(135deg,#171313,#342224);color:#fff;border-bottom:8px solid var(--accent2);position:relative}
-    .team-poster .poster-kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:900;color:#ffd86f}.team-poster .poster-title{font-size:clamp(34px,6vw,64px);line-height:.92;font-weight:1000;letter-spacing:-.045em;text-transform:uppercase;margin:7px 0 9px}.team-poster .poster-sub{font-size:16px;font-weight:750;max-width:90%}
-    .team-poster .poster-store{position:absolute;right:24px;top:24px;text-align:right;font-size:12px;font-weight:900}.team-poster .poster-store strong{display:block;font-size:20px;color:#fff}
-    .team-poster .poster-body{padding:22px 24px 20px;display:flex;flex-direction:column;gap:15px;flex:1;background:linear-gradient(180deg,#fffdf8,#f7efe5)}
-    .poster-hero{display:grid;grid-template-columns:1.05fr .95fr;gap:14px}.poster-big{background:var(--accent);color:#fff;border-radius:18px;padding:20px;min-height:180px;display:flex;flex-direction:column;justify-content:center}.poster-big .big-num{font-size:70px;font-weight:1000;line-height:.9}.poster-big .big-label{font-size:14px;text-transform:uppercase;letter-spacing:.08em;font-weight:900;margin-bottom:8px}.poster-big .big-note{font-size:16px;font-weight:800;margin-top:10px}
-    .poster-callout{border:3px solid #171313;border-radius:18px;padding:18px;background:#fff}.poster-callout h3{font-size:24px;margin:0 0 10px;text-transform:uppercase}.poster-callout p{font-size:17px;line-height:1.35;margin:0;font-weight:700}
-    .poster-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.poster-box{border:1px solid #dbcfc4;border-radius:15px;padding:14px;background:#fff}.poster-box .label{font-size:11px;text-transform:uppercase;letter-spacing:.09em;font-weight:900;color:#756b6d}.poster-box .value{font-size:28px;font-weight:1000;margin-top:3px}.poster-box .small{font-size:13px;color:#756b6d;font-weight:700;margin-top:4px}
-    .poster-focus{background:#171313;color:#fff;border-radius:16px;padding:16px 18px}.poster-focus h3{margin:0 0 9px;color:#ffd86f;text-transform:uppercase}.poster-focus ol{margin:0;padding-left:20px;display:grid;gap:7px;font-weight:800;line-height:1.3}
-    .poster-footer{margin-top:auto;padding:15px 24px;background:var(--accent2);font-weight:1000;text-align:center;text-transform:uppercase;letter-spacing:.03em}
-    .team-poster.style-fun{--accent:#d92535;--accent2:#f4c52f}.team-poster.style-fun .poster-body{background:linear-gradient(180deg,#fff9df,#fff)}
-    .team-poster.style-bold{--accent:#aa111b;--accent2:#111}.team-poster.style-bold .poster-top{background:#080808}.team-poster.style-bold .poster-footer{color:#fff}
-    .team-poster.style-clean{--accent:#2c6b55;--accent2:#e7d7bb}.team-poster.style-clean .poster-top{background:#f7f3ee;color:#171313;border-bottom-color:var(--accent)}.team-poster.style-clean .poster-store strong{color:#171313}.team-poster.style-clean .poster-kicker{color:var(--accent)}
-    .team-poster.style-motivational{--accent:#b3232c;--accent2:#f0b323}.team-poster.style-motivational .poster-title{font-style:italic}.team-poster.style-motivational .poster-big{background:linear-gradient(135deg,#b3232c,#e45b32)}
-    .comm-note{font-size:12px;line-height:1.45;color:var(--muted);margin-top:8px}.comm-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-    @media(max-width:850px){.comm-studio{grid-template-columns:1fr}.comm-tools{position:static}.team-poster{min-width:0}.poster-hero{grid-template-columns:1fr}.poster-grid{grid-template-columns:1fr 1fr}}
-    @media(max-width:540px){.poster-grid{grid-template-columns:1fr}.team-poster .poster-top{padding:22px 18px 16px}.team-poster .poster-body{padding:16px}.team-poster .poster-store{position:static;text-align:left;margin-top:8px}.team-poster .poster-title{font-size:42px}}
-    @media print{
-      body.poster-print *{visibility:hidden!important}
-      body.poster-print #commPoster,body.poster-print #commPoster *{visibility:visible!important}
-      body.poster-print #commPoster{position:absolute!important;left:0;top:0;width:8.5in!important;height:11in!important;max-width:none!important;box-shadow:none!important;border:0!important}
-      body.poster-print .poster-shell{padding:0!important;background:#fff!important;overflow:visible!important}
-      @page{size:letter portrait;margin:0}
-    }
+    .comm-studio{display:grid;grid-template-columns:minmax(270px,.72fr) minmax(0,1.28fr);gap:16px;align-items:start}
+    .comm-tools{position:sticky;top:78px}.comm-tools .card{margin-bottom:12px}.comm-actions,.comm-style-row{display:flex;gap:8px;flex-wrap:wrap}.comm-style-row button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 11px;font-weight:850}.comm-style-row button.active{background:#a8151b;color:#fff;border-color:#a8151b}.comm-note{font-size:12px;line-height:1.45;color:var(--muted);margin-top:8px}
+    .poster-shell{background:#d8d0c8;border-radius:18px;padding:14px;overflow:auto}
+    .team-poster{--red:#c71920;--gold:#f1c232;--green:#70ad47;--blue:#4b8dcc;position:relative;aspect-ratio:8.5/11;max-width:760px;margin:auto;overflow:hidden;color:#fff;background:radial-gradient(circle at 50% 0,#333 0,#181818 48%,#0b0b0b 100%);border:7px solid #111;box-shadow:0 18px 50px #0004;font-family:Arial,Helvetica,sans-serif;display:flex;flex-direction:column}
+    .team-poster:before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.16;background-image:repeating-linear-gradient(12deg,#fff0 0 16px,#fff 17px,#fff0 18px 34px);mix-blend-mode:overlay}
+    .poster-top{position:relative;padding:22px 25px 12px;text-align:center;z-index:1}.brand-row{display:flex;justify-content:space-between;align-items:center;gap:10px}.brand-badge{font-size:14px;font-weight:1000;letter-spacing:.04em;color:#fff}.brand-badge.arbys{font-size:22px;color:#fff;text-shadow:2px 2px #a8151b}.brand-badge.amb{font-family:Georgia,serif;font-size:16px;color:#f5d338}.poster-title{font-size:clamp(34px,6vw,58px);font-weight:1000;line-height:.9;letter-spacing:-.04em;text-transform:uppercase;margin:3px 0 5px;font-style:italic}.poster-title .store-no{color:var(--red)}.poster-ribbon{display:inline-block;background:var(--red);padding:6px 24px;transform:skew(-5deg);font-size:19px;font-weight:1000;text-transform:uppercase}.poster-date{margin-top:7px;font-weight:900;font-size:14px;letter-spacing:.04em}
+    .poster-body{position:relative;z-index:1;padding:8px 17px 12px;display:grid;grid-template-columns:1fr 1fr;gap:11px;flex:1;min-height:0}.board-card{background:#111d;border:2px solid #b71920;border-radius:10px;box-shadow:inset 0 0 0 1px #ffffff12;padding:11px}.board-card h3{margin:0 0 8px;font-size:17px;text-transform:uppercase;font-style:italic}.red-head{background:var(--red);margin:-11px -11px 10px;padding:8px 11px;border-radius:7px 7px 0 0}.hero-osat{display:flex;align-items:center;gap:12px}.score-ring{width:116px;height:116px;flex:0 0 116px;border:8px solid var(--red);border-right-color:#777;border-radius:50%;display:grid;place-items:center;text-align:center}.score-ring strong{font-size:43px;line-height:.9}.score-ring small{font-size:12px;font-weight:900}.goal-note{color:#ffd52f;font-size:14px;font-weight:1000}.metric-list{display:grid;gap:5px;flex:1}.metric-line{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #ffffff25;padding:3px 0;font-size:12px;font-weight:850}.metric-line b{color:#ffd52f;font-size:15px}
+    .ops-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.op{border:1px solid #ffffff22;border-radius:7px;padding:7px}.op span{display:block;font-size:9px;text-transform:uppercase;color:#ddd;font-weight:900}.op strong{font-size:19px}.op.hero{grid-column:1/-1}.op.hero strong{font-size:35px;color:#fff}.over{color:#ffcf33;font-weight:900;font-size:11px;margin-top:3px}
+    .sticky{background:#f4c62e;color:#171717;transform:rotate(-1deg);border:0;box-shadow:3px 5px 0 #0007}.sticky h3{color:#a8151b}.sticky strong{color:#a8151b}.recognition{border-color:#d6a91b}.recognition h3{color:#ffd52f}.recognition .win{font-size:22px;font-weight:1000;font-style:italic}.opportunity{border-color:#e77b22}.opportunity h3{color:#ff9b3d}.opportunity .win{font-size:22px;font-weight:1000;font-style:italic;color:#ff9b3d}
+    .focus{grid-column:1/-1}.focus-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.focus-item{display:flex;gap:8px;align-items:flex-start;background:#ffffff0d;border-radius:7px;padding:7px;font-size:11px;font-weight:800;line-height:1.25}.focus-num{width:24px;height:24px;flex:0 0 24px;border-radius:50%;display:grid;place-items:center;background:var(--red);font-size:13px}.focus-item:nth-child(2) .focus-num{background:#d8751b}.focus-item:nth-child(3) .focus-num{background:#2c6ca8}.focus-item:nth-child(4) .focus-num{background:#4f8c31}
+    .shopper{grid-column:1/-1;background:#f2c733;color:#171717;border:0;transform:rotate(.3deg);padding:10px 13px}.shopper h3{color:#a8151b}.shopper-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;font-size:11px;font-weight:850}.shopper-grid div:before{content:'✓ ';color:#a8151b;font-size:15px;font-weight:1000}.poster-footer{position:relative;z-index:1;background:linear-gradient(90deg,#7f080c,#d21f25,#7f080c);padding:10px 15px;text-align:center;font-size:18px;font-weight:1000;font-style:italic;text-transform:uppercase}.poster-footer span{color:#ffd52f}
+    .team-poster.style-bold{--red:#e31d25}.team-poster.style-bold .board-card{background:#050505ee}.team-poster.style-motivational{--red:#b4151b;--gold:#ffd23c}.team-poster.style-motivational .poster-title{font-size:clamp(38px,6.5vw,62px)}.team-poster.style-clean{background:#f7f2e9;color:#171717;border-color:#d7cec4}.team-poster.style-clean:before{display:none}.team-poster.style-clean .board-card{background:#fff;color:#171717;border-color:#ddd}.team-poster.style-clean .metric-line{border-color:#ddd}.team-poster.style-clean .brand-badge{color:#171717}.team-poster.style-clean .brand-badge.arbys{color:#a8151b}.team-poster.style-clean .op span{color:#555}.team-poster.style-clean .focus-item{background:#f2eee8}
+    @media(max-width:850px){.comm-studio{grid-template-columns:1fr}.comm-tools{position:static}}
+    @media(max-width:540px){.poster-shell{padding:6px}.team-poster{font-size:90%}.poster-body{padding:6px 10px;gap:7px}.score-ring{width:88px;height:88px;flex-basis:88px}.score-ring strong{font-size:34px}.focus-grid{grid-template-columns:1fr}}
+    @media print{body.poster-print *{visibility:hidden!important}body.poster-print #commPoster,body.poster-print #commPoster *{visibility:visible!important}body.poster-print #commPoster{position:absolute!important;left:0;top:0;width:8.5in!important;height:11in!important;max-width:none!important;box-shadow:none!important;border:0!important}body.poster-print .poster-shell{padding:0!important;background:#fff!important;overflow:visible!important}@page{size:letter portrait;margin:0}}
   </style>`;
-  document.head.insertAdjacentHTML('beforeend', styles);
+  document.head.insertAdjacentHTML('beforeend',css);
 
-  const topicDefs = {
-    weekly:{label:'Weekly Team Update',title:'THIS WEEK, WE WIN',kicker:'Weekly Team Communication',sub:'Know the numbers. Own the opportunities. Celebrate the wins.'},
-    speed:{label:'Speed of Service',title:'SPEED WINS!',kicker:'Every second counts',sub:'Stay ready, stay in position, and keep the line moving.'},
-    guest:{label:'Guest Experience',title:'EVERY GUEST. EVERY TIME.',kicker:'Guest Experience',sub:'Great service is built one interaction at a time.'},
-    accuracy:{label:'Accuracy',title:'MAKE IT RIGHT',kicker:'Accuracy Focus',sub:'Repeat it. Check it. Hand it out right.'},
-    clean:{label:'Cleanliness',title:'KEEP IT CLEAN!',kicker:'Clean store, strong experience',sub:'Clean as you go and protect every guest touchpoint.'},
-    mystery:{label:'Mystery Shopper',title:'MYSTERY SHOPPER ALERT!',kicker:'Be ready anytime',sub:'Be friendly. Be accurate. Be proud of the restaurant.'},
-    food:{label:'Food Variance',title:'CONTROL THE COST',kicker:'Food Cost Focus',sub:'Portion right, log waste, and protect every count.'},
-    labor:{label:'Labor',title:'SMART DEPLOYMENT WINS',kicker:'Labor Focus',sub:'Use the right people in the right positions at the right time.'},
-    recognition:{label:'Recognition',title:'SHOUT OUT!',kicker:'Team Recognition',sub:'Great work deserves to be seen and celebrated.'},
-    custom:{label:'Custom Topic',title:'TEAM UPDATE',kicker:'Communication Center',sub:'Clear message. Strong team. Better execution.'}
-  };
+  const topics={weekly:'Weekly Team Update',speed:'Speed of Service',guest:'Guest Experience',accuracy:'Accuracy',clean:'Cleanliness',mystery:'Mystery Shopper',food:'Food Variance',labor:'Labor',recognition:'Recognition',custom:'Custom Topic'};
+  const latestWeek=()=>{try{return typeof latest==='function'?latest():null}catch{return null}};
+  const val=(k,v)=>{try{return fmt(k,v)}catch{return v??'—'}};
+  const esc=x=>String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+  const cap=x=>x?x.charAt(0).toUpperCase()+x.slice(1):'';
+  const guestKeys=['accuracy','cleanliness','speed','taste','friendliness'];
+  const lowest=w=>{const a=guestKeys.filter(k=>w?.[k]!=null);return a.length?a.reduce((x,y)=>+w[x]<=+w[y]?x:y):null};
+  const highest=w=>{const a=guestKeys.filter(k=>w?.[k]!=null);return a.length?a.reduce((x,y)=>+w[x]>=+w[y]?x:y):null};
+  const dateRange=w=>{if(!w?.weekStart)return 'LATEST WEEK';try{return `${fd(w.weekStart)} – ${end(w.weekStart)}`}catch{return 'LATEST WEEK'}};
+  const driveText=w=>w?.driveOverall!=null?val('driveOverall',w.driveOverall):'—';
+  const goal=(k,fallback)=>s?.settings?.[k]??fallback;
 
-  function dateRange(w){
-    if(!w?.weekStart) return 'LATEST WEEK';
-    try{return `${fd(w.weekStart)} – ${end(w.weekStart)}`;}catch{return 'LATEST WEEK';}
-  }
-  function latestWeek(){try{return typeof latest==='function'?latest():null}catch{return null}}
-  function val(k,v){try{return fmt(k,v)}catch{return v??'—'}}
-  function esc2(x){return String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-  function lowestGuest(w){
-    const keys=['accuracy','cleanliness','speed','taste','friendliness'].filter(k=>w?.[k]!=null);
-    return keys.length?keys.reduce((a,b)=>Number(w[a])<=Number(w[b])?a:b):null;
-  }
-  function strongestGuest(w){
-    const keys=['accuracy','cleanliness','speed','taste','friendliness'].filter(k=>w?.[k]!=null);
-    return keys.length?keys.reduce((a,b)=>Number(w[a])>=Number(w[b])?a:b):null;
-  }
-  function cap2(s){return s?s.charAt(0).toUpperCase()+s.slice(1):''}
-  function focusItems(topic,w){
-    const low=lowestGuest(w);
-    const base={
-      weekly:[low?`Coach ${cap2(low)} — currently ${val(low,w[low])}.`:'Pick one guest-experience behavior to coach.',w?.driveOverall!=null?`Protect drive-thru execution at ${val('driveOverall',w.driveOverall)}.`:'Stay positioned and peak-ready.',w?.foodVariance!=null?`Review food variance at ${val('foodVariance',w.foodVariance)}.`:'Protect portions and waste routines.'],
-      speed:['Stay in position during peak.','Keep product ready before the rush.','Use pull-ahead when appropriate.'],
-      guest:[low?`Focus first on ${cap2(low)}.`:'Coach one guest-experience behavior.','Repeat orders and verify accuracy.','Thank every guest and finish strong.'],
-      accuracy:['Repeat the order back.','Verify sauces and modifiers.','Final bag check before handoff.'],
-      clean:['Clean as you go.','Use timed lobby and restroom checks.','Manager verifies each daypart.'],
-      mystery:['Be friendly and engaged.','Repeat the order for accuracy.','Suggest, upsell, and thank every guest.'],
-      food:['Review top-loss items.','Log waste accurately.','Protect portions, transfers, and counts.'],
-      labor:['Schedule to the business.','Protect peak deployment.','Save hours without sacrificing service.'],
-      recognition:['Call out a specific win.','Thank the team publicly.','Connect the win to guest experience.'],
-      custom:['Keep the message simple.','Give the team one clear action.','Recognize progress next week.']
-    };
-    return base[topic]||base.custom;
-  }
-  function heroFor(topic,w){
-    if(topic==='speed') return {label:'DRIVE-THRU',num:w?.driveOverall!=null?val('driveOverall',w.driveOverall):'—',note:`Goal ${val('driveOverall',s?.settings?.driveGoal)}`};
-    if(topic==='guest') return {label:'OSAT',num:w?.osat!=null?val('osat',w.osat):'—',note:`Goal ${s?.settings?.osatGoal??'—'}%`};
-    if(topic==='accuracy') return {label:'ACCURACY',num:w?.accuracy!=null?val('accuracy',w.accuracy):'—',note:'Make it right every time'};
-    if(topic==='clean') return {label:'CLEANLINESS',num:w?.cleanliness!=null?val('cleanliness',w.cleanliness):'—',note:'Clean store. Strong experience.'};
-    if(topic==='food') return {label:'FOOD VARIANCE',num:w?.foodVariance!=null?val('foodVariance',w.foodVariance):'—',note:`Goal ${s?.settings?.foodGoal??'—'}%`};
-    if(topic==='labor') return {label:'LABOR SAVED',num:w?.laborHoursSaved!=null?val('laborHoursSaved',w.laborHoursSaved):'—',note:`Goal ${s?.settings?.laborGoal??'—'} hrs`};
-    if(topic==='recognition') {const hi=strongestGuest(w); return {label:'STRONGEST AREA',num:hi?cap2(hi):'TEAM',note:hi?`${val(hi,w[hi])} — great work!`:'Celebrate a win this week'};}
-    if(topic==='mystery') return {label:'BE READY',num:'ANYTIME',note:'Every guest could be the shopper'};
-    return {label:'OSAT',num:w?.osat!=null?val('osat',w.osat):'—',note:`Goal ${s?.settings?.osatGoal??'—'}%`};
-  }
-
-  comm.innerHTML=`
-    <div class="card hero" style="margin-bottom:14px"><div><div class="eyebrow">Communication Center</div><h2>Smart Poster Studio</h2><p class="muted">Turn your weekly numbers or a custom topic into a fun, print-ready team communication.</p></div><div class="hero-actions"><button class="primary" id="quickWeeklyPoster">Create Weekly Poster</button></div></div>
-    <div class="comm-studio">
-      <div class="comm-tools">
-        <div class="card">
-          <div class="eyebrow">Create a communication</div>
-          <h2 style="margin-bottom:14px">Poster Builder</h2>
-          <label>Topic<select id="commTopic">${Object.entries(topicDefs).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('')}</select></label>
-          <label style="margin-top:12px">Custom headline<input id="commHeadline" placeholder="Leave blank to auto-generate"></label>
-          <label style="margin-top:12px">Custom message<textarea id="commMessage" rows="3" placeholder="Optional message for your team"></textarea></label>
-          <label style="margin-top:12px">Style</label>
-          <div class="comm-style-row" id="commStyles"><button type="button" data-style="fun" class="active">Fun</button><button type="button" data-style="bold">Bold</button><button type="button" data-style="motivational">Motivational</button><button type="button" data-style="clean">Clean</button></div>
-          <label style="display:flex;grid-template-columns:auto 1fr;align-items:center;gap:9px;margin-top:14px"><input id="commUseData" type="checkbox" checked style="width:auto">Use latest weekly data automatically</label>
-          <div class="comm-actions"><button class="primary" type="button" id="commGenerate">Generate Poster ✨</button><button class="secondary" type="button" id="commShuffle">Shuffle Design</button><button class="secondary" type="button" id="commPrint">Print Poster</button></div>
-          <div class="comm-note">This version generates the design on-device from your store data and selected topic, so no AI key is exposed in the browser.</div>
-        </div>
-      </div>
-      <div class="poster-shell"><div id="commPoster" class="team-poster style-fun"></div></div>
-    </div>`;
+  comm.innerHTML=`<div class="card hero" style="margin-bottom:14px"><div><div class="eyebrow">Communication Center</div><h2>Communication Creator</h2><p class="muted">Create the same bold communication-board style each week using your latest store numbers.</p></div><div class="hero-actions"><button class="primary" id="quickWeeklyPoster">Create Weekly Board</button></div></div><div class="comm-studio"><div class="comm-tools"><div class="card"><div class="eyebrow">Build your board</div><h2 style="margin-bottom:14px">Poster Builder</h2><label>Topic<select id="commTopic">${Object.entries(topics).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></label><label style="margin-top:12px">Custom headline<input id="commHeadline" placeholder="Leave blank for Weekly Team Update"></label><label style="margin-top:12px">Custom team message<textarea id="commMessage" rows="3" placeholder="Optional message"></textarea></label><label style="margin-top:12px">Style</label><div class="comm-style-row" id="commStyles"><button type="button" data-style="fun" class="active">Board</button><button type="button" data-style="bold">Extra Bold</button><button type="button" data-style="motivational">Motivational</button><button type="button" data-style="clean">Clean</button></div><label style="display:flex;grid-template-columns:auto 1fr;align-items:center;gap:9px;margin-top:14px"><input id="commUseData" type="checkbox" checked style="width:auto">Use latest weekly data automatically</label><div class="comm-actions"><button class="primary" type="button" id="commGenerate">Generate Board ✨</button><button class="secondary" type="button" id="commShuffle">Change Style</button><button class="secondary" type="button" id="commPrint">Print</button></div><div class="comm-note">Designed for an 8.5 × 11 communication board. Weekly data fills in automatically.</div></div></div><div class="poster-shell"><div id="commPoster" class="team-poster style-fun"></div></div></div>`;
 
   let selectedStyle='fun';
-  let variation=0;
-  const topicEl=document.getElementById('commTopic'), headlineEl=document.getElementById('commHeadline'), msgEl=document.getElementById('commMessage'), useDataEl=document.getElementById('commUseData'), poster=document.getElementById('commPoster');
+  const topicEl=document.getElementById('commTopic'),headlineEl=document.getElementById('commHeadline'),msgEl=document.getElementById('commMessage'),useDataEl=document.getElementById('commUseData'),poster=document.getElementById('commPoster');
+
+  function focusItems(w){
+    const low=lowest(w), dg=+goal('driveGoal',60), drive=+w?.driveOverall, laborGoal=+goal('laborGoal',40), labor=+w?.laborHoursSaved;
+    return [
+      `Keep OSAT at ${goal('osatGoal',55)}% or higher. ${low?`Focus on ${cap(low)} (${val(low,w[low])}).`:''}`,
+      Number.isFinite(drive)?`Drive-thru: ${driveText(w)}. ${drive>dg?`${Math.round(drive-dg)} sec over goal — review slow dayparts.`:'Goal met — protect the pace.'}`:'Stay positioned and peak-ready.',
+      w?.foodVariance!=null?`Food variance: ${val('foodVariance',w.foodVariance)}. Review waste, portions, transfers and top losses.`:'Protect portions and waste routines.',
+      Number.isFinite(labor)?`Labor saved: ${val('laborHoursSaved',labor)}. ${labor>=laborGoal?'On track — protect service.':`${Math.max(0,laborGoal-labor)} hrs short of goal.`}`:'Protect service while managing labor.'
+    ];
+  }
 
   function renderPoster(){
-    const topic=topicEl.value;
-    const def=topicDefs[topic]||topicDefs.custom;
-    const w=useDataEl.checked?latestWeek():null;
-    const hero=heroFor(topic,w);
-    const customHeadline=headlineEl.value.trim();
-    const customMsg=msgEl.value.trim();
-    const low=lowestGuest(w), hi=strongestGuest(w);
-    const metricBoxes=[
-      ['OSAT',w?.osat!=null?val('osat',w.osat):'—',`Goal ${s?.settings?.osatGoal??'—'}%`],
-      ['Drive-Thru',w?.driveOverall!=null?val('driveOverall',w.driveOverall):'—',`Goal ${val('driveOverall',s?.settings?.driveGoal)}`],
-      ['Food Variance',w?.foodVariance!=null?val('foodVariance',w.foodVariance):'—',`Goal ${s?.settings?.foodGoal??'—'}%`],
-      ['Labor Saved',w?.laborHoursSaved!=null?val('laborHoursSaved',w.laborHoursSaved):'—',`Goal ${s?.settings?.laborGoal??'—'} hrs`]
-    ];
-    const callout = customMsg || (topic==='weekly' && low ? `${cap2(hi)} is leading the guest experience. ${cap2(low)} is the clearest opportunity. One focused week can move the score.` : def.sub);
-    const footers=['ONE TEAM. ONE GOAL. ONE WIN.','EVERY GUEST. EVERY TIME.','COMMUNICATE. EXECUTE. CELEBRATE.','STRONGER TEAM. BETTER RESULTS.'];
-    const footer=footers[variation%footers.length];
+    const w=useDataEl.checked?latestWeek():null, low=lowest(w), hi=highest(w), osat=w?.osat!=null?w.osat:'—', osatGoal=goal('osatGoal',55), store=s?.settings?.storeNumber||'8571';
+    const custom=msgEl.value.trim();
+    const shopper=['Be friendly','Offer a Meal','Ask if they want to upsize to LG/XL','Suggestive sale a turnover','Offer sauce','Repeat the Order for Accuracy','Give the total and Thanks'];
+    const title=headlineEl.value.trim()||topics[topicEl.value]||'Weekly Team Update';
     poster.className=`team-poster style-${selectedStyle}`;
-    poster.innerHTML=`
-      <div class="poster-top">
-        <div class="poster-kicker">${esc2(def.kicker)}</div>
-        <div class="poster-title">${esc2(customHeadline||def.title)}</div>
-        <div class="poster-sub">${esc2(dateRange(w))}</div>
-        <div class="poster-store">STORE<strong>${esc2(s?.settings?.storeNumber||'—')}</strong>${esc2(s?.settings?.storeLocation||'')}</div>
-      </div>
-      <div class="poster-body">
-        <div class="poster-hero">
-          <div class="poster-big"><div class="big-label">${esc2(hero.label)}</div><div class="big-num">${esc2(hero.num)}</div><div class="big-note">${esc2(hero.note)}</div></div>
-          <div class="poster-callout"><h3>TEAM MESSAGE</h3><p>${esc2(callout)}</p></div>
-        </div>
-        <div class="poster-grid">${metricBoxes.map(([l,v,n])=>`<div class="poster-box"><div class="label">${esc2(l)}</div><div class="value">${esc2(v)}</div><div class="small">${esc2(n)}</div></div>`).join('')}</div>
-        <div class="poster-focus"><h3>THIS WEEK'S FOCUS</h3><ol>${focusItems(topic,w).map(x=>`<li>${esc2(x)}</li>`).join('')}</ol></div>
-      </div>
-      <div class="poster-footer">${esc2(footer)}</div>`;
+    poster.innerHTML=`<div class="poster-top"><div class="brand-row"><div class="brand-badge arbys">Arby’s</div><div class="brand-badge amb">☀ AMBROSIA QSR</div></div><div class="poster-title">STORE <span class="store-no">${esc(store)}</span></div><div class="poster-ribbon">${esc(title)}</div><div class="poster-date">${esc(dateRange(w))}</div></div><div class="poster-body">
+      <section class="board-card"><h3 class="red-head">★ Guest Experience</h3><div class="hero-osat"><div class="score-ring"><div><small>OSAT</small><br><strong>${esc(osat)}${osat==='—'?'':'%'}</strong><br><small>GOAL ${esc(osatGoal)}%</small></div></div><div class="metric-list">${guestKeys.map(k=>`<div class="metric-line"><span>${cap(k)}</span><b>${w?.[k]!=null?esc(val(k,w[k])):'—'}</b></div>`).join('')}</div></div></section>
+      <section class="board-card"><h3 class="red-head">⚙ Operations</h3><div class="ops-grid"><div class="op hero"><span>Drive-Thru Overall</span><strong>${esc(driveText(w))}</strong><div class="over">GOAL ${esc(val('driveOverall',goal('driveGoal',60)))}</div></div><div class="op"><span>Food Variance</span><strong>${w?.foodVariance!=null?esc(val('foodVariance',w.foodVariance)):'—'}</strong></div><div class="op"><span>Labor Saved</span><strong>${w?.laborHoursSaved!=null?esc(val('laborHoursSaved',w.laborHoursSaved)):'—'}</strong></div><div class="op"><span>Weekly Sales</span><strong>${w?.weeklySales!=null?esc(val('weeklySales',w.weeklySales)):'—'}</strong></div></div></section>
+      <section class="board-card recognition"><h3>🏆 Recognition</h3><div class="win">${hi?`${cap(hi)} is our STRONGEST guest category!`:'Celebrate the team’s strongest win!'}</div><p>${hi?`Great work at ${esc(val(hi,w[hi]))}. Keep it going!`:'Recognize great execution this week.'}</p></section>
+      <section class="board-card opportunity"><h3>↗ Opportunity</h3><div class="win">${low?`${cap(low)} is our LOWEST guest category.`:'Find the clearest opportunity.'}</div><p>${low?'Coach one simple behavior every shift.':'Choose one behavior to improve this week.'}</p></section>
+      <section class="board-card focus"><h3 class="red-head">🎯 This Week’s Focus</h3><div class="focus-grid">${focusItems(w).map((x,i)=>`<div class="focus-item"><div class="focus-num">${i+1}</div><div>${esc(x)}</div></div>`).join('')}</div>${custom?`<p style="margin:9px 0 0;font-weight:900;color:#ffd52f">Manager note: ${esc(custom)}</p>`:''}</section>
+      <section class="board-card shopper"><h3>🔎 BE READY FOR THE MYSTERY SHOPPER!</h3><div class="shopper-grid">${shopper.map(x=>`<div>${esc(x)}</div>`).join('')}</div></section>
+    </div><div class="poster-footer">FAST. ACCURATE. CLEAN. FRIENDLY. <span>EVERY GUEST. EVERY TIME.</span></div>`;
   }
 
   document.getElementById('commStyles').addEventListener('click',e=>{const b=e.target.closest('button[data-style]');if(!b)return;selectedStyle=b.dataset.style;document.querySelectorAll('#commStyles button').forEach(x=>x.classList.toggle('active',x===b));renderPoster()});
   document.getElementById('commGenerate').onclick=renderPoster;
-  document.getElementById('commShuffle').onclick=()=>{variation++;const all=['fun','bold','motivational','clean'];selectedStyle=all[(all.indexOf(selectedStyle)+1)%all.length];document.querySelectorAll('#commStyles button').forEach(x=>x.classList.toggle('active',x.dataset.style===selectedStyle));renderPoster()};
+  document.getElementById('commShuffle').onclick=()=>{const all=['fun','bold','motivational','clean'];selectedStyle=all[(all.indexOf(selectedStyle)+1)%all.length];document.querySelectorAll('#commStyles button').forEach(x=>x.classList.toggle('active',x.dataset.style===selectedStyle));renderPoster()};
   document.getElementById('quickWeeklyPoster').onclick=()=>{topicEl.value='weekly';headlineEl.value='';msgEl.value='';useDataEl.checked=true;renderPoster();document.querySelector('.poster-shell')?.scrollIntoView({behavior:'smooth',block:'start'})};
   document.getElementById('commPrint').onclick=()=>{document.body.classList.add('poster-print');window.print();setTimeout(()=>document.body.classList.remove('poster-print'),500)};
   [topicEl,headlineEl,msgEl,useDataEl].forEach(el=>el.addEventListener(el.tagName==='SELECT'||el.type==='checkbox'?'change':'input',renderPoster));
-
   renderPoster();
 })();
