@@ -63,6 +63,30 @@ if(!localStorage.getItem(OCT_WEEKS_KEY)){
   localStorage.setItem(K,JSON.stringify(s));
   localStorage.setItem(OCT_WEEKS_KEY,'1');
 }
+const SEP_WEEKS_KEY='gmAssistantSeptemberFourWeeks2026_v1';
+if(!localStorage.getItem(SEP_WEEKS_KEY)){
+  const septemberStarts=new Set(['2026-09-05','2026-09-12','2026-09-19','2026-09-26']);
+  const septemberIds=new Set(Array.from(septemberStarts,d=>'store8571-'+d));
+  s.weeks=s.weeks.filter(w=>!septemberIds.has(w.id)&&!septemberStarts.has(w.weekStart));
+  if(s.monthlyRecaps)delete s.monthlyRecaps['2026-09'];
+  const septemberWeeks=[
+    ['2026-09-05',19498.66],
+    ['2026-09-12',19498.66],
+    ['2026-09-19',19498.66],
+    ['2026-09-26',19498.67]
+  ].map(([weekStart,sales],i)=>({
+    id:'store8571-'+weekStart,weekStart,sales,surveyCount:null,
+    osat:51,accuracy:66,cleanliness:40,speed:59,taste:52,friendliness:63,
+    driveOverall:117,driveMorning:null,driveLunch:98,driveAfternoon:128,driveDinner:132,driveEvening:124,
+    foodVariance:-0.33,laborHoursSaved:11.5,
+    recognition:'Accuracy is our strongest category. Great job, team!',
+    focusText:'Improve cleanliness|Reduce afternoon and dinner drive-thru times|Stay in position and communicate|Repeat orders for accuracy|Clean as you go',
+    comments:'September recap allocation — week '+(i+1)+' of 4. Entered to chart the September monthly results.'
+  }));
+  s.weeks.push(...septemberWeeks);
+  localStorage.setItem(K,JSON.stringify(s));
+  localStorage.setItem(SEP_WEEKS_KEY,'1');
+}
 const OSM=[{title:'B.L.A.S.T. Guest Recovery Model',section:'Guest Service',page:5,keys:'blast guest recovery complaint believe listen apologize solve thank',text:'B.L.A.S.T. stands for Believe, Listen, Apologize, Solve, and Thank.'},{title:'Guest experience focus areas',section:'Guest Service',page:4,keys:'speed cleanliness food quality accuracy friendliness serve refresh delight',text:'Serve connects to Speed and Cleanliness; Refresh connects to Food Quality and Accuracy; Delight connects to Friendliness.'},{title:'Roast beef tempering',section:'Roast Beef Preparation',page:8,keys:'roast beef tempering 34 40 48 72 today 4',text:'The July 2026 overview shows 34°F–40°F, 48–72 hours minimum, one inch between roasts, and a maximum hold of Today + 4 days.'}];
 const DAYPARTS=[['driveMorning','Morning','driveMorningGoal'],['driveLunch','Lunch','driveLunchGoal'],['driveAfternoon','Afternoon','driveAfternoonGoal'],['driveDinner','Dinner','driveDinnerGoal'],['driveEvening','Evening','driveEveningGoal']];
 const DASHBOARD_DAYPART_KEYS=new Set(['driveLunch','driveAfternoon','driveDinner','driveEvening']);
