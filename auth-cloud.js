@@ -41,8 +41,23 @@
   function mergeStates(remote,local){
     remote=remote&&typeof remote==='object'?remote:{};local=local&&typeof local==='object'?local:{};
     const weeks=new Map();
-    [...(remote.weeks||[]),...(local.weeks||[])].forEach(w=>{if(w)weeks.set(w.id||w.weekStart||JSON.stringify(w),w)});
-    return {settings:{...(remote.settings||{}),...(local.settings||{})},weeks:[...weeks.values()]};
+    [...(remote.weeks||[]),...(local.weeks||[])].forEach(w=>{
+      if(!w)return;
+      const isWrongOctoberWeek=w.id==='store8571-2026-11-01'||(
+        w.weekStart==='2026-11-01'&&String(w.comments||'').toLowerCase().includes('october recap')&&
+        Number(w.osat)===51&&Number(w.driveOverall)===117
+      );
+      if(!isWrongOctoberWeek)weeks.set(w.id||w.weekStart||JSON.stringify(w),w);
+    });
+    const monthlyRecaps={...(remote.monthlyRecaps||{}),...(local.monthlyRecaps||{})};
+    monthlyRecaps['2026-10']={
+      month:'2026-10',sales:82146.67,osat:51,accuracy:66,cleanliness:46,speed:64,taste:53,friendliness:68,
+      driveOverall:117,foodVariance:0.46,laborHoursSaved:56,
+      recognition:'Friendliness was our strongest category. Great job, team!',
+      focusText:'Mystery Shopper readiness|AOA inspection readiness|Clean as you go|Follow food-safety and holding times|Correct issues immediately|Keep every area stocked and organized',
+      comments:'October recap. Continue building AOA and Mystery Shopper readiness: be friendly, offer a meal and upsizing, repeat orders for accuracy, and keep every area inspection ready.'
+    };
+    return {settings:{...(remote.settings||{}),...(local.settings||{})},weeks:[...weeks.values()],monthlyRecaps};
   }
   async function pullCloud(){
     if(!user||syncing)return;syncing=true;
