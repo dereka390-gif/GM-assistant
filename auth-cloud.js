@@ -40,13 +40,32 @@
   }
   function mergeStates(remote,local){
     remote=remote&&typeof remote==='object'?remote:{};local=local&&typeof local==='object'?local:{};
-    const replaceStarts=new Set(['2026-10-03','2026-10-10','2026-10-17','2026-10-24']);
+    const septemberStarts=['2026-09-05','2026-09-12','2026-09-19','2026-09-26'];
+    const octoberStarts=['2026-10-03','2026-10-10','2026-10-17','2026-10-24'];
+    const replaceStarts=new Set([...septemberStarts,...octoberStarts]);
     const replaceIds=new Set(['store8571-2026-11-01',...Array.from(replaceStarts,d=>'store8571-'+d)]);
     const weeks=new Map();
     [...(remote.weeks||[]),...(local.weeks||[])].forEach(w=>{
       if(!w)return;
       const wrongNov=w.weekStart==='2026-11-01'&&String(w.comments||'').toLowerCase().includes('october recap')&&Number(w.osat)===51&&Number(w.driveOverall)===117;
       if(!replaceIds.has(w.id)&&!replaceStarts.has(w.weekStart)&&!wrongNov)weeks.set(w.id||w.weekStart||JSON.stringify(w),w);
+    });
+    [
+      ['2026-09-05',19498.66],
+      ['2026-09-12',19498.66],
+      ['2026-09-19',19498.66],
+      ['2026-09-26',19498.67]
+    ].forEach(([weekStart,sales],i)=>{
+      const week={
+        id:'store8571-'+weekStart,weekStart,sales,surveyCount:null,
+        osat:51,accuracy:66,cleanliness:40,speed:59,taste:52,friendliness:63,
+        driveOverall:117,driveMorning:null,driveLunch:98,driveAfternoon:128,driveDinner:132,driveEvening:124,
+        foodVariance:-0.33,laborHoursSaved:11.5,
+        recognition:'Accuracy is our strongest category. Great job, team!',
+        focusText:'Improve cleanliness|Reduce afternoon and dinner drive-thru times|Stay in position and communicate|Repeat orders for accuracy|Clean as you go',
+        comments:'September recap allocation — week '+(i+1)+' of 4. Entered to chart the September monthly results.'
+      };
+      weeks.set(week.id,week);
     });
     [
       ['2026-10-03',20536.67],
@@ -66,7 +85,7 @@
       weeks.set(week.id,week);
     });
     const monthlyRecaps={...(remote.monthlyRecaps||{}),...(local.monthlyRecaps||{})};
-    delete monthlyRecaps['2026-10'];
+    delete monthlyRecaps['2026-09'];delete monthlyRecaps['2026-10'];
     return {settings:{...(remote.settings||{}),...(local.settings||{}),storeNumber:(local.settings||{}).storeNumber||(remote.settings||{}).storeNumber||'8571',osatGoal:55},weeks:[...weeks.values()],monthlyRecaps};
   }
   async function pullCloud(){
