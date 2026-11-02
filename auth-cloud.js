@@ -40,24 +40,34 @@
   }
   function mergeStates(remote,local){
     remote=remote&&typeof remote==='object'?remote:{};local=local&&typeof local==='object'?local:{};
+    const replaceStarts=new Set(['2026-10-03','2026-10-10','2026-10-17','2026-10-24']);
+    const replaceIds=new Set(['store8571-2026-11-01',...Array.from(replaceStarts,d=>'store8571-'+d)]);
     const weeks=new Map();
     [...(remote.weeks||[]),...(local.weeks||[])].forEach(w=>{
       if(!w)return;
-      const isWrongOctoberWeek=w.id==='store8571-2026-11-01'||(
-        w.weekStart==='2026-11-01'&&String(w.comments||'').toLowerCase().includes('october recap')&&
-        Number(w.osat)===51&&Number(w.driveOverall)===117
-      );
-      if(!isWrongOctoberWeek)weeks.set(w.id||w.weekStart||JSON.stringify(w),w);
+      const wrongNov=w.weekStart==='2026-11-01'&&String(w.comments||'').toLowerCase().includes('october recap')&&Number(w.osat)===51&&Number(w.driveOverall)===117;
+      if(!replaceIds.has(w.id)&&!replaceStarts.has(w.weekStart)&&!wrongNov)weeks.set(w.id||w.weekStart||JSON.stringify(w),w);
+    });
+    [
+      ['2026-10-03',20536.67],
+      ['2026-10-10',20536.67],
+      ['2026-10-17',20536.67],
+      ['2026-10-24',20536.66]
+    ].forEach(([weekStart,sales],i)=>{
+      const week={
+        id:'store8571-'+weekStart,weekStart,sales,surveyCount:null,
+        osat:51,accuracy:66,cleanliness:46,speed:64,taste:53,friendliness:68,
+        driveOverall:117,driveMorning:null,driveLunch:null,driveAfternoon:null,driveDinner:null,driveEvening:null,
+        foodVariance:0.46,laborHoursSaved:14,
+        recognition:'Friendliness is our strongest category. Great job, team!',
+        focusText:'Mystery Shopper readiness|AOA inspection readiness|Clean as you go|Follow food-safety and holding times|Correct issues immediately|Keep every area stocked and organized',
+        comments:'October recap allocation — week '+(i+1)+' of 4. Entered to chart the October monthly results.'
+      };
+      weeks.set(week.id,week);
     });
     const monthlyRecaps={...(remote.monthlyRecaps||{}),...(local.monthlyRecaps||{})};
-    monthlyRecaps['2026-10']={
-      month:'2026-10',sales:82146.67,osat:51,accuracy:66,cleanliness:46,speed:64,taste:53,friendliness:68,
-      driveOverall:117,foodVariance:0.46,laborHoursSaved:56,
-      recognition:'Friendliness was our strongest category. Great job, team!',
-      focusText:'Mystery Shopper readiness|AOA inspection readiness|Clean as you go|Follow food-safety and holding times|Correct issues immediately|Keep every area stocked and organized',
-      comments:'October recap. Continue building AOA and Mystery Shopper readiness: be friendly, offer a meal and upsizing, repeat orders for accuracy, and keep every area inspection ready.'
-    };
-    return {settings:{...(remote.settings||{}),...(local.settings||{})},weeks:[...weeks.values()],monthlyRecaps};
+    delete monthlyRecaps['2026-10'];
+    return {settings:{...(remote.settings||{}),...(local.settings||{}),storeNumber:(local.settings||{}).storeNumber||(remote.settings||{}).storeNumber||'8571',osatGoal:55},weeks:[...weeks.values()],monthlyRecaps};
   }
   async function pullCloud(){
     if(!user||syncing)return;syncing=true;
