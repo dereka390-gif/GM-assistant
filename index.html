@@ -38,19 +38,30 @@
 const K='gmAssistantV1';
 const D={settings:{gmName:'',storeNumber:'',storeLocation:'',osatGoal:50,driveGoal:120,driveMorningGoal:null,driveLunchGoal:60,driveAfternoonGoal:75,driveDinnerGoal:75,driveEveningGoal:null,foodGoal:1,districtFoodGoal:.5,laborGoal:40},weeks:[],monthlyRecaps:{}};
 let s=JSON.parse(localStorage.getItem(K)||'null')||structuredClone(D);s.settings={...D.settings,...(s.settings||{})};s.weeks=Array.isArray(s.weeks)?s.weeks:[];s.monthlyRecaps=s.monthlyRecaps&&typeof s.monthlyRecaps==='object'?s.monthlyRecaps:{};let dashMode='weekly';
-const OCT_RECAP_KEY='gmAssistantOctoberRecap2026_v2';
-if(!localStorage.getItem(OCT_RECAP_KEY)){
-  s.weeks=s.weeks.filter(w=>w.id!=='store8571-2026-11-01');
-  s.monthlyRecaps['2026-10']={
-    month:'2026-10',sales:82146.67,osat:51,accuracy:66,cleanliness:46,speed:64,taste:53,friendliness:68,
-    driveOverall:117,foodVariance:0.46,laborHoursSaved:56,
-    recognition:'Friendliness was our strongest category. Great job, team!',
+const OCT_WEEKS_KEY='gmAssistantOctoberFourWeeks2026_v3';
+if(!localStorage.getItem(OCT_WEEKS_KEY)){
+  const ids=new Set(['store8571-2026-11-01','store8571-2026-10-03','store8571-2026-10-10','store8571-2026-10-17','store8571-2026-10-24']);
+  const octoberStarts=new Set(['2026-10-03','2026-10-10','2026-10-17','2026-10-24']);
+  s.weeks=s.weeks.filter(w=>!ids.has(w.id)&&!octoberStarts.has(w.weekStart));
+  if(s.monthlyRecaps)delete s.monthlyRecaps['2026-10'];
+  const octoberWeeks=[
+    ['2026-10-03',20536.67],
+    ['2026-10-10',20536.67],
+    ['2026-10-17',20536.67],
+    ['2026-10-24',20536.66]
+  ].map(([weekStart,sales],i)=>({
+    id:'store8571-'+weekStart,weekStart,sales,surveyCount:null,
+    osat:51,accuracy:66,cleanliness:46,speed:64,taste:53,friendliness:68,
+    driveOverall:117,driveMorning:null,driveLunch:null,driveAfternoon:null,driveDinner:null,driveEvening:null,
+    foodVariance:0.46,laborHoursSaved:14,
+    recognition:'Friendliness is our strongest category. Great job, team!',
     focusText:'Mystery Shopper readiness|AOA inspection readiness|Clean as you go|Follow food-safety and holding times|Correct issues immediately|Keep every area stocked and organized',
-    comments:'October recap. Continue building AOA and Mystery Shopper readiness: be friendly, offer a meal and upsizing, repeat orders for accuracy, and keep every area inspection ready.'
-  };
+    comments:'October recap allocation — week '+(i+1)+' of 4. Entered to chart the October monthly results.'
+  }));
+  s.weeks.push(...octoberWeeks);
   s.settings={...s.settings,storeNumber:s.settings.storeNumber||'8571',osatGoal:55};
   localStorage.setItem(K,JSON.stringify(s));
-  localStorage.setItem(OCT_RECAP_KEY,'1');
+  localStorage.setItem(OCT_WEEKS_KEY,'1');
 }
 const OSM=[{title:'B.L.A.S.T. Guest Recovery Model',section:'Guest Service',page:5,keys:'blast guest recovery complaint believe listen apologize solve thank',text:'B.L.A.S.T. stands for Believe, Listen, Apologize, Solve, and Thank.'},{title:'Guest experience focus areas',section:'Guest Service',page:4,keys:'speed cleanliness food quality accuracy friendliness serve refresh delight',text:'Serve connects to Speed and Cleanliness; Refresh connects to Food Quality and Accuracy; Delight connects to Friendliness.'},{title:'Roast beef tempering',section:'Roast Beef Preparation',page:8,keys:'roast beef tempering 34 40 48 72 today 4',text:'The July 2026 overview shows 34°F–40°F, 48–72 hours minimum, one inch between roasts, and a maximum hold of Today + 4 days.'}];
 const DAYPARTS=[['driveMorning','Morning','driveMorningGoal'],['driveLunch','Lunch','driveLunchGoal'],['driveAfternoon','Afternoon','driveAfternoonGoal'],['driveDinner','Dinner','driveDinnerGoal'],['driveEvening','Evening','driveEveningGoal']];
