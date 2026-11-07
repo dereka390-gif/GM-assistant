@@ -87,6 +87,12 @@ if(!localStorage.getItem(SEP_WEEKS_KEY)){
   localStorage.setItem(K,JSON.stringify(s));
   localStorage.setItem(SEP_WEEKS_KEY,'1');
 }
+const NOV6_KEY='gmAssistantWeekEndingNov6_2026_v1';
+if(!localStorage.getItem(NOV6_KEY)){
+ s.weeks=s.weeks.filter(w=>w.weekStart!=='2026-10-31');
+ s.weeks.push({"id":"store8571-2026-10-31","weekStart":"2026-10-31","sales":17746.62,"surveyCount":null,"osat":51,"accuracy":65,"cleanliness":47,"speed":64,"taste":52,"friendliness":67,"driveOverall":106,"driveMorning":null,"driveLunch":92,"driveAfternoon":89,"driveDinner":123,"driveEvening":159,"foodVariance":-0.37,"laborHoursSaved":-12,"mysteryShopper":66,"recognition":"Friendliness leads at 67%. Keep greeting every guest.","focusText":"Mystery shopper: 66%; minimum standard 90%|Observe 5 orders per shift and coach missed service steps|Complete 1 practice shop daily; goal 90%+|Check lobby and restrooms every 30 minutes|Review dinner and evening deployment each shift|Verify portions, waste and sauce preference","comments":"Week ending 11/6/2026. Weekly sales $17,746.62. DT overall 1:46 is MTD. Top 3 losses: Tomatoes -$30.43; Beef -$22.96; Horsey packets -$16.43. Labor saved -12 hours (12 hours over). Continue Douglas backline training."});
+ localStorage.setItem(K,JSON.stringify(s));localStorage.setItem(NOV6_KEY,'1');
+}
 const OSM=[{title:'B.L.A.S.T. Guest Recovery Model',section:'Guest Service',page:5,keys:'blast guest recovery complaint believe listen apologize solve thank',text:'B.L.A.S.T. stands for Believe, Listen, Apologize, Solve, and Thank.'},{title:'Guest experience focus areas',section:'Guest Service',page:4,keys:'speed cleanliness food quality accuracy friendliness serve refresh delight',text:'Serve connects to Speed and Cleanliness; Refresh connects to Food Quality and Accuracy; Delight connects to Friendliness.'},{title:'Roast beef tempering',section:'Roast Beef Preparation',page:8,keys:'roast beef tempering 34 40 48 72 today 4',text:'The July 2026 overview shows 34°F–40°F, 48–72 hours minimum, one inch between roasts, and a maximum hold of Today + 4 days.'}];
 const DAYPARTS=[['driveMorning','Morning','driveMorningGoal'],['driveLunch','Lunch','driveLunchGoal'],['driveAfternoon','Afternoon','driveAfternoonGoal'],['driveDinner','Dinner','driveDinnerGoal'],['driveEvening','Evening','driveEveningGoal']];
 const DASHBOARD_DAYPART_KEYS=new Set(['driveLunch','driveAfternoon','driveDinner','driveEvening']);
@@ -134,7 +140,7 @@ function dl(name,text,type){let u=URL.createObjectURL(new Blob([text],{type})),a
 renderBoard=function(){
   let w=latest();
   let recap=s.monthlyRecaps?.['2026-10']||null;
-  let showRecap=!!recap&&(!w||w.weekStart<='2026-10-31');
+  let showRecap=!!recap&&(!w||w.weekStart<'2026-10-31');
   if(showRecap){
     let cats=['accuracy','cleanliness','speed','taste','friendliness'].filter(k=>recap[k]!=null);
     let hi=cats.length?cats.reduce((a,b)=>recap[a]>recap[b]?a:b):null;
@@ -159,7 +165,7 @@ renderBoard=function(){
   let recognition=w.recognition||(hi?cap(hi)+' was the strongest guest category at '+fmt(hi,w[hi])+'.':'Add recognition.');
   board.innerHTML='<div class="boardhead"><div><div class="eyebrow">Weekly team update</div><h2 style="margin-bottom:4px">Store '+esc(s.settings.storeNumber||'8571')+'</h2><span>'+fd(w.weekStart)+' – '+end(w.weekStart)+'</span></div><div class="pill">GM Assistant</div></div>'
     +'<div class="boardgrid"><div class="panel"><h3>Guest Experience</h3><p><b>OSAT:</b> '+fmt('osat',w.osat)+' / Goal '+s.settings.osatGoal+'%</p><p>Accuracy '+fmt('accuracy',w.accuracy)+' · Cleanliness '+fmt('cleanliness',w.cleanliness)+'</p><p>Speed '+fmt('speed',w.speed)+' · Taste '+fmt('taste',w.taste)+' · Friendliness '+fmt('friendliness',w.friendliness)+'</p></div>'
-    +'<div class="panel"><h3>Operations</h3><p><b>Drive-Thru:</b> '+fmt('driveOverall',w.driveOverall)+' / Goal '+fmt('driveOverall',s.settings.driveGoal)+'</p><p><b>Food Variance:</b> '+fmt('foodVariance',w.foodVariance)+'</p><p><b>Labor Saved:</b> '+fmt('laborHoursSaved',w.laborHoursSaved)+'</p></div>'
+    +'<div class="panel"><h3>Operations</h3><p><b>Weekly Sales:</b> '+Number(w.sales||0).toLocaleString('en-US',{style:'currency',currency:'USD'})+'</p><p><b>Mystery Shopper:</b> '+(w.mysteryShopper==null?'—':w.mysteryShopper+'% / Minimum 90%')+'</p><p><b>Drive-Thru:</b> '+fmt('driveOverall',w.driveOverall)+' / Goal '+fmt('driveOverall',s.settings.driveGoal)+'</p><p><b>Food Variance:</b> '+fmt('foodVariance',w.foodVariance)+'</p><p><b>Labor Saved:</b> '+fmt('laborHoursSaved',w.laborHoursSaved)+'</p></div>'
     +'<div class="panel"><h3>Recognition</h3><p>'+esc(recognition)+'</p></div><div class="panel"><h3>Opportunity</h3><p>'+(lo?cap(lo)+' was the lowest guest category at '+fmt(lo,w[lo])+'.':'Choose an opportunity.')+'</p></div></div>'
     +'<div class="panel" style="margin-top:12px"><h3>This Week\'s Focus</h3><ol>'+focus.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></div>'
     +'<div class="panel" style="margin-top:12px"><h3>Manager Notes</h3><p>'+esc(w.comments||'No notes entered.')+'</p></div>';
