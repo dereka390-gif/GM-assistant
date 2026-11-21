@@ -98,16 +98,16 @@ const DAYPARTS=[['driveMorning','Morning','driveMorningGoal'],['driveLunch','Lun
 const DASHBOARD_DAYPART_KEYS=new Set(['driveLunch','driveAfternoon','driveDinner','driveEvening']);
 const META={osat:{name:'OSAT',unit:'%',goal:'osatGoal',higher:true,agg:'avg'},accuracy:{name:'Accuracy',unit:'%',higher:true,agg:'avg'},cleanliness:{name:'Cleanliness',unit:'%',higher:true,agg:'avg'},speed:{name:'Speed',unit:'%',higher:true,agg:'avg'},taste:{name:'Taste',unit:'%',higher:true,agg:'avg'},friendliness:{name:'Friendliness',unit:'%',higher:true,agg:'avg'},surveyCount:{name:'Survey count',unit:'',higher:true,agg:'sum'},driveOverall:{name:'Drive-thru overall',unit:' sec',goal:'driveGoal',higher:false,agg:'avg'},driveMorning:{name:'Drive-thru Morning',unit:' sec',higher:false,agg:'avg'},driveLunch:{name:'Drive-thru Lunch',unit:' sec',higher:false,agg:'avg'},driveAfternoon:{name:'Drive-thru Afternoon',unit:' sec',higher:false,agg:'avg'},driveDinner:{name:'Drive-thru Dinner',unit:' sec',higher:false,agg:'avg'},driveEvening:{name:'Drive-thru Evening',unit:' sec',higher:false,agg:'avg'},foodVariance:{name:'Food variance',unit:'%',goal:'foodGoal',higher:false,agg:'avg'},laborHoursSaved:{name:'Labor saved',unit:' hrs',goal:'laborGoal',higher:true,agg:'sum'},sales:{name:'Sales',unit:'',higher:true,agg:'sum'}};
 // Store 8571 verified weekly results, November 7–13, 2026.
-const NOV_7_WEEK_KEY='gmAssistantStore8571Nov07_2026_v2';
+const NOV_7_WEEK_KEY='gmAssistantStore8571Nov07_2026_v3';
 if(!localStorage.getItem(NOV_7_WEEK_KEY)){
   const weekStart='2026-11-07';
   const entry={id:'store8571-'+weekStart,weekStart,sales:19166.87,surveyCount:null,
     osat:52,accuracy:66,cleanliness:49,speed:65,taste:54,friendliness:69,
     driveOverall:104,driveMorning:null,driveLunch:87,driveAfternoon:96,driveDinner:116,driveEvening:158,
-    foodVariance:-0.37,laborHoursSaved:null,
+    foodVariance:-0.37,laborHoursSaved:29,
     recognition:'Great work on $19,166.87 in weekly sales and 69% friendliness.',
     focusText:'AOA readiness|Mystery shopper goal 90%+|Improve dinner and evening drive-thru speed|Cleanliness and food safety|Repeat orders and verify accuracy',
-    comments:'November 7–13 weekly update. Drive-thru and food variance figures are month-to-date. OSAT goal 55. Labor hours and survey count not provided.'};
+    comments:'November 7–13 weekly update. Drive-thru and food variance figures are month-to-date. OSAT goal 55. Month-to-date labor hours saved: 29. Survey count not provided.'};
   s.weeks=s.weeks.filter(w=>w.weekStart!==weekStart&&w.id!==entry.id);
   s.weeks.push(entry);
   s.settings={...s.settings,storeNumber:'8571',osatGoal:55};
@@ -115,16 +115,16 @@ if(!localStorage.getItem(NOV_7_WEEK_KEY)){
   localStorage.setItem(NOV_7_WEEK_KEY,'1');
 }
 // Store 8571 weekly results, November 14–20, 2026.
-const NOV_14_WEEK_KEY='gmAssistantStore8571Nov14_2026_v1';
+const NOV_14_WEEK_KEY='gmAssistantStore8571Nov14_2026_v2';
 if(!localStorage.getItem(NOV_14_WEEK_KEY)){
   const weekStart='2026-11-14';
   const entry={id:'store8571-'+weekStart,weekStart,sales:17335.27,surveyCount:null,
     osat:52,accuracy:66,cleanliness:49,speed:65,taste:54,friendliness:69,
     driveOverall:105,driveMorning:null,driveLunch:88,driveAfternoon:102,driveDinner:116,driveEvening:157,
-    foodVariance:-0.46,laborHoursSaved:null,
+    foodVariance:-0.46,laborHoursSaved:47,
     recognition:'Friendliness remains the strongest guest category at 69%.',
     focusText:'AOA readiness|Mystery shopper goal 90%+|Improve dinner and evening drive-thru speed|Improve cleanliness|Control food variance and waste',
-    comments:'November 14–20 weekly update. Drive-thru and food variance figures are month-to-date. OSAT and guest category scores unchanged from prior week. Labor hours and survey count not provided.'};
+    comments:'November 14–20 weekly update. Drive-thru and food variance figures are month-to-date. OSAT and guest category scores unchanged from prior week. Month-to-date labor hours saved: 47. Survey count not provided.'};
   s.weeks=s.weeks.filter(w=>w.weekStart!==weekStart&&w.id!==entry.id);
   s.weeks.push(entry);
   s.settings={...s.settings,storeNumber:'8571',osatGoal:55};
