@@ -114,6 +114,23 @@ if(!localStorage.getItem(NOV_7_WEEK_KEY)){
   localStorage.setItem(K,JSON.stringify(s));
   localStorage.setItem(NOV_7_WEEK_KEY,'1');
 }
+// Store 8571 weekly results, November 14–20, 2026.
+const NOV_14_WEEK_KEY='gmAssistantStore8571Nov14_2026_v1';
+if(!localStorage.getItem(NOV_14_WEEK_KEY)){
+  const weekStart='2026-11-14';
+  const entry={id:'store8571-'+weekStart,weekStart,sales:17335.27,surveyCount:null,
+    osat:52,accuracy:66,cleanliness:49,speed:65,taste:54,friendliness:69,
+    driveOverall:105,driveMorning:null,driveLunch:88,driveAfternoon:102,driveDinner:116,driveEvening:157,
+    foodVariance:-0.46,laborHoursSaved:null,
+    recognition:'Friendliness remains the strongest guest category at 69%.',
+    focusText:'AOA readiness|Mystery shopper goal 90%+|Improve dinner and evening drive-thru speed|Improve cleanliness|Control food variance and waste',
+    comments:'November 14–20 weekly update. Drive-thru and food variance figures are month-to-date. OSAT and guest category scores unchanged from prior week. Labor hours and survey count not provided.'};
+  s.weeks=s.weeks.filter(w=>w.weekStart!==weekStart&&w.id!==entry.id);
+  s.weeks.push(entry);
+  s.settings={...s.settings,storeNumber:'8571',osatGoal:55};
+  localStorage.setItem(K,JSON.stringify(s));
+  localStorage.setItem(NOV_14_WEEK_KEY,'1');
+}
 function save(){localStorage.setItem(K,JSON.stringify(s))}function n(v){return v===''||v==null?null:Number(v)}function esc(x){return String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}function sorted(){return [...s.weeks].sort((a,b)=>a.weekStart.localeCompare(b.weekStart))}function latest(){return sorted().at(-1)||null}function prev(){return sorted().at(-2)||null}function fd(x){return new Date(x+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}function end(x){let d=new Date(x+'T12:00:00');d.setDate(d.getDate()+6);return d.toLocaleDateString(undefined,{month:'short',day:'numeric'})}function cap(x){return x?x[0].toUpperCase()+x.slice(1):x}
 function show(id){document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('active',x.dataset.v===id));if(id==='trends')draw();scrollTo({top:0,behavior:'smooth'})}document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>show(b.dataset.v));
 function monthKey(d){let x=new Date(d+'T12:00:00');return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}`}function monthLabel(k){let [y,m]=k.split('-').map(Number);return new Date(y,m-1,1).toLocaleDateString(undefined,{month:'long',year:'numeric'})}
