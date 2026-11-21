@@ -97,6 +97,23 @@ const OSM=[{title:'B.L.A.S.T. Guest Recovery Model',section:'Guest Service',page
 const DAYPARTS=[['driveMorning','Morning','driveMorningGoal'],['driveLunch','Lunch','driveLunchGoal'],['driveAfternoon','Afternoon','driveAfternoonGoal'],['driveDinner','Dinner','driveDinnerGoal'],['driveEvening','Evening','driveEveningGoal']];
 const DASHBOARD_DAYPART_KEYS=new Set(['driveLunch','driveAfternoon','driveDinner','driveEvening']);
 const META={osat:{name:'OSAT',unit:'%',goal:'osatGoal',higher:true,agg:'avg'},accuracy:{name:'Accuracy',unit:'%',higher:true,agg:'avg'},cleanliness:{name:'Cleanliness',unit:'%',higher:true,agg:'avg'},speed:{name:'Speed',unit:'%',higher:true,agg:'avg'},taste:{name:'Taste',unit:'%',higher:true,agg:'avg'},friendliness:{name:'Friendliness',unit:'%',higher:true,agg:'avg'},surveyCount:{name:'Survey count',unit:'',higher:true,agg:'sum'},driveOverall:{name:'Drive-thru overall',unit:' sec',goal:'driveGoal',higher:false,agg:'avg'},driveMorning:{name:'Drive-thru Morning',unit:' sec',higher:false,agg:'avg'},driveLunch:{name:'Drive-thru Lunch',unit:' sec',higher:false,agg:'avg'},driveAfternoon:{name:'Drive-thru Afternoon',unit:' sec',higher:false,agg:'avg'},driveDinner:{name:'Drive-thru Dinner',unit:' sec',higher:false,agg:'avg'},driveEvening:{name:'Drive-thru Evening',unit:' sec',higher:false,agg:'avg'},foodVariance:{name:'Food variance',unit:'%',goal:'foodGoal',higher:false,agg:'avg'},laborHoursSaved:{name:'Labor saved',unit:' hrs',goal:'laborGoal',higher:true,agg:'sum'},sales:{name:'Sales',unit:'',higher:true,agg:'sum'}};
+// Store 8571 verified weekly results, November 7–13, 2026.
+const NOV_7_WEEK_KEY='gmAssistantStore8571Nov07_2026_v1';
+if(!localStorage.getItem(NOV_7_WEEK_KEY)){
+  const weekStart='2026-11-07';
+  const entry={id:'store8571-'+weekStart,weekStart,sales:19166.87,surveyCount:null,
+    osat:52,accuracy:66,cleanliness:49,speed:65,taste:54,friendliness:69,
+    driveOverall:104,driveMorning:null,driveLunch:87,driveAfternoon:96,driveDinner:116,driveEvening:158,
+    foodVariance:-0.58,laborHoursSaved:null,
+    recognition:'Great work on $19,166.87 in weekly sales and 69% friendliness.',
+    focusText:'AOA readiness|Mystery shopper goal 90%+|Improve dinner and evening drive-thru speed|Cleanliness and food safety|Repeat orders and verify accuracy',
+    comments:'November 7–13 weekly update. Drive-thru figures are month-to-date. OSAT goal 55. Labor hours and survey count not provided.'};
+  s.weeks=s.weeks.filter(w=>w.weekStart!==weekStart&&w.id!==entry.id);
+  s.weeks.push(entry);
+  s.settings={...s.settings,storeNumber:'8571',osatGoal:55};
+  localStorage.setItem(K,JSON.stringify(s));
+  localStorage.setItem(NOV_7_WEEK_KEY,'1');
+}
 function save(){localStorage.setItem(K,JSON.stringify(s))}function n(v){return v===''||v==null?null:Number(v)}function esc(x){return String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}function sorted(){return [...s.weeks].sort((a,b)=>a.weekStart.localeCompare(b.weekStart))}function latest(){return sorted().at(-1)||null}function prev(){return sorted().at(-2)||null}function fd(x){return new Date(x+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}function end(x){let d=new Date(x+'T12:00:00');d.setDate(d.getDate()+6);return d.toLocaleDateString(undefined,{month:'short',day:'numeric'})}function cap(x){return x?x[0].toUpperCase()+x.slice(1):x}
 function show(id){document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('active',x.dataset.v===id));if(id==='trends')draw();scrollTo({top:0,behavior:'smooth'})}document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>show(b.dataset.v));
 function monthKey(d){let x=new Date(d+'T12:00:00');return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}`}function monthLabel(k){let [y,m]=k.split('-').map(Number);return new Date(y,m-1,1).toLocaleDateString(undefined,{month:'long',year:'numeric'})}
